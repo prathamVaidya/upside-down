@@ -1,0 +1,49 @@
+/*
+ * Reduced motion keeps the meaning and drops the travel.
+ *
+ * The brief asks for a version that still feels intentional rather than
+ * stripped, and the distinction that matters here is that "upside down" is
+ * *information*, not decoration: the loser still ends up inverted, it simply
+ * arrives there instead of tumbling. Removing the rotation entirely would
+ * delete a game state from the screen.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ud-anim-bob,
+  .ud-anim-rock,
+  .ud-anim-look,
+  .ud-anim-timer,
+  .ud-anim-crown,
+  .ud-anim-fall,
+  .ud-anim-dots {
+    animation: none;
+  }
+
+  /* Arrive, do not travel. One held frame so it still reads as a cut rather
+     than a dissolve — stop-motion with the tumble taken out. */
+  .ud-anim-pop,
+  .ud-anim-drop-in,
+  .ud-anim-pellet,
+  .ud-anim-pts,
+  .ud-anim-tag {
+    animation-duration: 1ms;
+    animation-timing-function: steps(1, end);
+  }
+
+  .ud-anim-winflip {
+    animation: none;
+    transform: rotate(0deg);
+  }
+
+  /* Still inverted — that is the game state, not the animation. */
+  .ud-anim-loseflip {
+    animation: none;
+    transform: rotate(180deg) scale(0.86);
+    filter: grayscale(0.5);
+    opacity: 0.65;
+  }
+
+  .ud-press {
+    transition: none;
+  }
+}

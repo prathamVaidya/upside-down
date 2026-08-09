@@ -1,0 +1,32 @@
+{
+  "name": "upside-down",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:server": "bun run --cwd apps/server dev",
+    "test": "bun run content:check && vitest run",
+    "test:watch": "vitest",
+    "bots": "bun run tools/botgame/src/index.ts",
+    "content:check": "bun run packages/content/src/check.ts",
+    "build": "bun run --cwd apps/stage build && bun run --cwd apps/phone build",
+    "typecheck": "tsc --build --force",
+    "lint": "biome check .",
+    "format": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2",
+    "@testing-library/react": "^16.3.2",
+    "@types/bun": "^1.2.19",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "jsdom": "^30.0.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

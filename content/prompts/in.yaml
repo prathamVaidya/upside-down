@@ -1,0 +1,21 @@
+# India. Mixed with global.yaml when the host picks this region.
+region: in
+prompts:
+  - { id: in-001, level: 1, text: What the auto driver is thinking about you }
+  - { id: in-002, level: 1, text: A terrible name for a chai stall }
+  - { id: in-003, level: 1, text: The real reason the power went out }
+  - { id: in-004, level: 1, text: A cursed new flavour of Maggi }
+  - { id: in-005, level: 1, text: What the cricket commentator is not saying }
+  - { id: in-006, level: 1, text: A bad reason to honk }
+  - { id: in-007, level: 2, text: The most unhinged message in the family WhatsApp group }
+  - { id: in-008, level: 2, text: What the aunty at the wedding actually meant }
+  - { id: in-009, level: 2, text: A terrible reason to skip a cousin's wedding }
+  - { id: in-010, level: 2, text: The real reason your marks were low }
+  - { id: in-011, level: 2, text: What the society group is fighting about now }
+  - { id: in-012, level: 2, text: The worst thing to say to a relative at Diwali }
+  - { id: in-013, level: 2, text: A new item on the wedding buffet nobody asked for }
+  - { id: in-014, level: 2, text: What your landlord means by "family only" }
+  - { id: in-015, level: 3, text: What you would say to your relatives with no consequences }
+  - { id: in-016, level: 3, text: The worst thing to announce at a family dinner }
+  - { id: in-017, level: 3, text: A dowry demand from someone with no shame }
+  - { id: in-018, level: 3, text: What the horoscope should have warned you about }

@@ -1,0 +1,63 @@
+/*
+ * Nursery clay — tokens, verbatim from direction sheet 1a.
+ *
+ * Nothing here is pure white or pure black, because clay does not do either.
+ * Everything is flat fill plus hard offset shadow, because that is what
+ * survives a 720p screen-share; thin lines and soft gradients do not.
+ */
+
+:root {
+  /* Palette · named roles */
+  --ud-table: #f0e9db; /* the surface everything sits on */
+  --ud-ink: #40352c; /* type, and the dark stage */
+  --ud-brick: #ce6a50; /* player A, primary action */
+  --ud-slate: #7e97b8; /* player B */
+  --ud-butter: #efc75e; /* the mascot, and winning */
+  --ud-sage: #88a386; /* timers, and things being fine */
+
+  /* Tints of the same clay, for surfaces that sit on the table */
+  --ud-card: #fbf4e8;
+  --ud-shelf: #e2d6c0;
+  --ud-groove: #e0d5c0;
+  --ud-ink-soft: rgba(64, 53, 44, 0.55);
+  --ud-ink-faint: rgba(64, 53, 44, 0.4);
+  --ud-on-dark: #f0e9db;
+
+  /* Material model · every element is one rule */
+  --ud-lift: 0 9px 0 rgba(64, 53, 44, 0.16);
+  --ud-lift-sm: 0 5px 0 rgba(64, 53, 44, 0.14);
+  --ud-lift-lg: 0 14px 0 rgba(64, 53, 44, 0.18);
+  --ud-top-light: inset 0 4px 0 rgba(255, 255, 255, 0.28);
+  --ud-top-light-pale: inset 0 3px 0 rgba(255, 255, 255, 0.9);
+  --ud-occlude: inset 0 -7px 0 rgba(64, 53, 44, 0.14);
+
+  /* Motion · stop-motion animates on twos, never on a spring */
+  --ud-step: steps(3, end);
+  --ud-step-2: steps(2, end);
+  --ud-beat: 240ms;
+  --ud-beat-2: 480ms;
+  --ud-beat-long: 900ms;
+
+  /* Type */
+  --ud-stage-font: "Fredoka", system-ui, sans-serif;
+  --ud-quiet-font: "Varela Round", system-ui, sans-serif;
+
+  /* Layout */
+  --ud-radius: 22px 26px 20px 28px;
+  --ud-focus: 0 0 0 4px rgba(64, 53, 44, 0.45);
+}
+
+/*
+ * The stage goes dark for the winner beat only. Kept as a scope rather than a
+ * theme: this product has one look, and the television is not a dark-mode app.
+ */
+.ud-dark {
+  --ud-table: #40352c;
+  --ud-card: #4a3e32;
+  --ud-shelf: #4a3e32;
+  --ud-ink: #f0e9db;
+  --ud-ink-soft: rgba(240, 233, 219, 0.6);
+  --ud-ink-faint: rgba(240, 233, 219, 0.45);
+  --ud-lift: 0 9px 0 rgba(0, 0, 0, 0.3);
+  --ud-top-light: inset 0 4px 0 rgba(255, 255, 255, 0.15);
+}

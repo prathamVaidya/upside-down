@@ -1,0 +1,18 @@
+# United States. Mixed with global.yaml when the host picks this region.
+region: us
+prompts:
+  - { id: us-001, level: 1, text: A terrible name for a food truck }
+  - { id: us-002, level: 1, text: The real reason your flight is delayed }
+  - { id: us-003, level: 1, text: What the HOA is emailing about now }
+  - { id: us-004, level: 1, text: A new flavour nobody asked for }
+  - { id: us-005, level: 1, text: The worst mascot for a high school }
+  - { id: us-006, level: 2, text: A new charge added to your hospital bill }
+  - { id: us-007, level: 2, text: The worst possible thing to put on a bumper sticker }
+  - { id: us-008, level: 2, text: What your landlord means by "cozy" }
+  - { id: us-009, level: 2, text: A reason the tip screen asked for 25 percent }
+  - { id: us-010, level: 2, text: The most American way to solve a small problem }
+  - { id: us-011, level: 2, text: What the group chat says after you leave the party }
+  - { id: us-012, level: 2, text: A terrible thing to name a child after }
+  - { id: us-013, level: 3, text: What you would do for one dollar less than your rent }
+  - { id: us-014, level: 3, text: The worst thing to confess at Thanksgiving }
+  - { id: us-015, level: 3, text: A reason to move states overnight }

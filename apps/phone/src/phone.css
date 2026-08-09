@@ -1,0 +1,106 @@
+/*
+ * Phone layout.
+ *
+ * The phone is a remote control. Nobody looks at it for longer than they have
+ * to — they glance down, act, and look back up at the television. So: one huge
+ * input, one huge button, no chrome, no navigation, everything thumb-reachable.
+ *
+ * If a screen in here is interesting to look at, it is wrong.
+ */
+
+.phone {
+  /* dvh, not vh — the software keyboard takes half the screen during writing
+     and vh would push the submit button underneath it. */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: max(20px, env(safe-area-inset-top)) 20px max(16px, env(safe-area-inset-bottom));
+  gap: 14px;
+  background: var(--ud-table);
+  color: var(--ud-ink);
+}
+
+.phone__spacer {
+  flex: 1;
+  min-height: 8px;
+}
+
+.phone__label {
+  font-size: 13px;
+  color: var(--ud-ink-soft);
+}
+
+.phone__title {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.phone__prompt {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.phone__hint {
+  font-size: 11.5px;
+  color: var(--ud-ink-faint);
+  text-align: center;
+}
+
+.phone__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The two voting targets. Big enough to hit without looking. */
+.choice {
+  width: 100%;
+  text-align: left;
+  font-family: var(--ud-stage-font);
+  font-weight: 500;
+  font-size: 19px;
+  line-height: 1.35;
+  padding: 22px 20px;
+  min-height: 116px;
+  display: flex;
+  align-items: center;
+}
+.choice--chosen {
+  outline: 4px solid var(--ud-ink);
+  outline-offset: 3px;
+}
+
+.seatlist {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.seatlist__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.codeinput {
+  width: 100%;
+  text-align: center;
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: 34px;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+}
+
+.error {
+  font-size: 13px;
+  color: #8f3f2c;
+  text-align: center;
+}

@@ -1,0 +1,155 @@
+/*
+ * The material rule.
+ *
+ * Every solid object in this product is the same five things: an uneven corner
+ * radius, a light from above, an occlusion below, a hard offset shadow that
+ * puts it *on* the table rather than floating over it, and a degree or two of
+ * rotation. There is no image asset anywhere in the design — if a component
+ * needs a PNG, it has been designed wrong.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ud-table);
+  color: var(--ud-ink);
+  font-family: var(--ud-quiet-font);
+  -webkit-font-smoothing: antialiased;
+  /* Nobody pinch-zooms a remote control. */
+  -webkit-text-size-adjust: 100%;
+}
+
+.ud-clay {
+  /* Set per element by useClayShape; these are the fallbacks. */
+  --r1: 22px;
+  --r2: 26px;
+  --r3: 20px;
+  --r4: 28px;
+  --rot: -1deg;
+
+  border-radius: var(--r1) var(--r2) var(--r3) var(--r4);
+  transform: rotate(var(--rot));
+  box-shadow: var(--ud-top-light), var(--ud-occlude), var(--ud-lift);
+  border: 0;
+}
+
+/* Pale clay — the card stock everything is written on. */
+.ud-clay--card {
+  background: var(--ud-card);
+  box-shadow:
+    var(--ud-top-light-pale),
+    inset 0 -5px 0 rgba(64, 53, 44, 0.07),
+    0 7px 0 rgba(64, 53, 44, 0.13);
+}
+
+.ud-clay--brick {
+  background: var(--ud-brick);
+  color: var(--ud-card);
+}
+.ud-clay--slate {
+  background: var(--ud-slate);
+  color: var(--ud-card);
+}
+.ud-clay--sage {
+  background: var(--ud-sage);
+  color: var(--ud-card);
+}
+.ud-clay--butter {
+  background: var(--ud-butter);
+  color: #4a3f2e;
+}
+.ud-clay--ink {
+  background: var(--ud-ink);
+  color: var(--ud-on-dark);
+}
+
+/* A blob: the seat silhouette, and the vote pellet. */
+.ud-blob {
+  border-radius: 48% 52% 50% 50% / 52% 48% 54% 46%;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.3),
+    var(--ud-lift-sm);
+}
+.ud-blob--lump {
+  border-radius: 54% 46% 50% 50% / 44% 58% 42% 56%;
+}
+
+/*
+ * Pressing something made of clay deforms it. The button squishes under the
+ * thumb — mockup 2h calls this the law, and it is the only interaction feedback
+ * the phone gets.
+ */
+.ud-press {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--ud-beat) var(--ud-step),
+    box-shadow var(--ud-beat) var(--ud-step);
+}
+.ud-press:active {
+  transform: rotate(var(--rot)) translateY(6px) scale(0.98, 0.94);
+  box-shadow:
+    var(--ud-top-light),
+    var(--ud-occlude),
+    0 2px 0 rgba(64, 53, 44, 0.16);
+}
+.ud-press:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/*
+ * Accessibility floor: a visible focus state that survives compression. A ring
+ * in the ink colour rather than a hue, so it never depends on colour alone.
+ */
+.ud-press:focus-visible,
+.ud-input:focus-visible {
+  outline: none;
+  box-shadow: var(--ud-top-light), var(--ud-occlude), var(--ud-lift), var(--ud-focus);
+}
+
+.ud-input {
+  width: 100%;
+  border: 0;
+  background: var(--ud-card);
+  color: var(--ud-ink);
+  font-family: var(--ud-stage-font);
+  box-shadow:
+    var(--ud-top-light-pale),
+    inset 0 -5px 0 rgba(64, 53, 44, 0.07),
+    0 6px 0 rgba(64, 53, 44, 0.12);
+  border-radius: var(--r1, 16px) var(--r2, 20px) var(--r3, 14px) var(--r4, 18px);
+  padding: 14px 16px;
+  resize: none;
+}
+.ud-input::placeholder {
+  color: var(--ud-ink-faint);
+}
+
+/* The signature element: losers live upside down. */
+.ud-upside-down {
+  transform: rotate(180deg) rotate(var(--rot));
+}
+
+.ud-stage-type {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ud-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

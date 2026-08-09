@@ -1,0 +1,209 @@
+/*
+ * Stage layout.
+ *
+ * Read from three metres by people who are not concentrating, through 720p
+ * screen-share compression, on an aspect ratio we cannot predict — including a
+ * laptop turned sideways on a coffee table. So: everything in viewport-relative
+ * units, one idea on screen at a time, and no small print anywhere.
+ */
+
+.stage {
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 3vmin, 48px);
+  gap: clamp(10px, 2vmin, 28px);
+  position: relative;
+  background: var(--ud-table);
+  color: var(--ud-ink);
+}
+
+.stage__title {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: clamp(26px, 4.6vmin, 60px);
+  line-height: 1.1;
+  text-align: center;
+  transform: rotate(-0.5deg);
+  margin: 0;
+}
+
+.stage__sub {
+  font-size: clamp(13px, 1.7vmin, 22px);
+  color: var(--ud-ink-soft);
+  text-align: center;
+  margin: 0;
+}
+
+.stage__foot {
+  position: absolute;
+  bottom: clamp(10px, 2vmin, 26px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(12px, 1.5vmin, 19px);
+  color: var(--ud-ink-faint);
+}
+
+.stage__corner {
+  position: absolute;
+  top: clamp(14px, 3vmin, 40px);
+  right: clamp(14px, 3vmin, 40px);
+}
+
+.stage__shelf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(60px, 13vmin, 140px);
+  background: var(--ud-shelf);
+  border-radius: 50% 50% 0 0 / clamp(20px, 4vmin, 34px) clamp(24px, 4.5vmin, 38px) 0 0;
+}
+
+/* The room code, as tiles. */
+.code {
+  display: flex;
+  gap: clamp(6px, 1.2vmin, 16px);
+}
+.code__tile {
+  width: clamp(52px, 11vmin, 132px);
+  height: clamp(64px, 13.5vmin, 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: clamp(38px, 8.5vmin, 100px);
+}
+
+/* Two answers, equal podiums, no visual bias to either side. */
+.slabs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: clamp(10px, 2vmin, 30px);
+  width: min(1400px, 94vw);
+}
+.slab {
+  min-height: clamp(120px, 24vmin, 260px);
+  padding: clamp(16px, 2.6vmin, 34px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(8px, 1.4vmin, 18px);
+}
+.slab__text {
+  font-family: var(--ud-stage-font);
+  font-weight: 500;
+  font-size: clamp(18px, 3.1vmin, 42px);
+  line-height: 1.25;
+}
+.slab__meta {
+  font-size: clamp(12px, 1.5vmin, 19px);
+  color: var(--ud-ink-soft);
+}
+.slab__pellets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 18px;
+}
+
+.versus {
+  font-family: var(--ud-stage-font);
+  font-size: clamp(14px, 2vmin, 26px);
+  color: var(--ud-ink-faint);
+}
+
+/* Writing-phase tiles: they flip over as people submit. */
+.writers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(10px, 2.2vmin, 30px);
+}
+.writer {
+  text-align: center;
+}
+.writer__tile {
+  width: clamp(74px, 12vmin, 132px);
+  height: clamp(64px, 10.5vmin, 116px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: clamp(12px, 1.8vmin, 22px);
+}
+.writer__name {
+  font-size: clamp(11px, 1.5vmin, 19px);
+  margin-top: 8px;
+}
+
+/* Scoreboard */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.4vmin, 18px);
+  width: min(1100px, 88vw);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.6vmin, 20px);
+}
+.row__bar {
+  flex: 1;
+  height: clamp(46px, 7.2vmin, 78px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(14px, 2vmin, 26px);
+}
+.row__name {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: clamp(16px, 2.4vmin, 30px);
+}
+.row__scores {
+  display: flex;
+  gap: clamp(10px, 1.6vmin, 22px);
+  align-items: baseline;
+}
+.row__delta {
+  font-weight: 700;
+  font-size: clamp(11px, 1.5vmin, 19px);
+}
+.row__total {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  font-size: clamp(17px, 2.6vmin, 33px);
+}
+
+.lobby__seats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(10px, 1.8vmin, 24px);
+  justify-content: center;
+  max-width: 90vw;
+}
+.lobby__seat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(14px, 2vmin, 26px);
+  font-family: var(--ud-stage-font);
+}
+
+.confetti {
+  position: absolute;
+  top: -20px;
+  width: 14px;
+  height: 13px;
+  border-radius: 50% 50% 46% 54%;
+}

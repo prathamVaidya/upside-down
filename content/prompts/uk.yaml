@@ -1,0 +1,18 @@
+# United Kingdom. Mixed with global.yaml when the host picks this region.
+region: uk
+prompts:
+  - { id: uk-001, level: 1, text: The real reason the train is delayed }
+  - { id: uk-002, level: 1, text: A terrible name for a village pub }
+  - { id: uk-003, level: 1, text: What the weather presenter is hiding }
+  - { id: uk-004, level: 1, text: A new category for the village show }
+  - { id: uk-005, level: 1, text: The worst thing to bring to a barbecue }
+  - { id: uk-006, level: 2, text: The most passive aggressive note in a shared kitchen }
+  - { id: uk-007, level: 2, text: A crime that deserves the full force of the queue }
+  - { id: uk-008, level: 2, text: What Britain would actually vote for }
+  - { id: uk-009, level: 2, text: The worst possible thing to say in a pub garden }
+  - { id: uk-010, level: 2, text: A reason to complain that nobody can argue with }
+  - { id: uk-011, level: 2, text: What the neighbours have decided about you }
+  - { id: uk-012, level: 2, text: The most British way to avoid a conversation }
+  - { id: uk-013, level: 3, text: What you would say to your neighbour after four pints }
+  - { id: uk-014, level: 3, text: The worst thing to admit on a night bus }
+  - { id: uk-015, level: 3, text: A grudge worth keeping for thirty years }

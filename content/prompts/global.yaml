@@ -1,0 +1,44 @@
+# Prompts that should land anywhere. Mixed into every deck regardless of region.
+# level: 1 HR approved · 2 medium roast · 3 Meet in Hell together
+region: global
+prompts:
+  - { id: g-001, level: 1, text: The worst thing to say in a job interview }
+  - { id: g-002, level: 1, text: A terrible name for a boy band }
+  - { id: g-003, level: 1, text: The real reason the wifi is down }
+  - { id: g-004, level: 1, text: What the office plant has seen }
+  - { id: g-005, level: 1, text: A bad slogan for a hospital }
+  - { id: g-006, level: 1, text: The least useful superpower }
+  - { id: g-007, level: 1, text: A rejected flavour of crisps }
+  - { id: g-008, level: 1, text: What your phone would say if it could talk }
+  - { id: g-009, level: 1, text: The worst possible time for a fire alarm }
+  - { id: g-010, level: 1, text: A terrible theme for a wedding }
+  - { id: g-011, level: 1, text: The most boring thing to be famous for }
+  - { id: g-012, level: 1, text: A new event for the Olympics }
+  - { id: g-013, level: 1, text: What the dog is barking at }
+  - { id: g-014, level: 1, text: A terrible first line for a novel }
+  - { id: g-015, level: 2, text: The real reason your friend is late }
+  - { id: g-016, level: 2, text: A law that would fix everything }
+  - { id: g-017, level: 2, text: The worst gift to give a coworker }
+  - { id: g-018, level: 2, text: A group chat you would leave immediately }
+  - { id: g-019, level: 2, text: The most unhinged thing to shout in a lift }
+  - { id: g-020, level: 2, text: What is actually in the office fridge }
+  - { id: g-021, level: 2, text: A terrible reason to end a friendship }
+  - { id: g-022, level: 2, text: The worst thing to find in a rental flat }
+  - { id: g-023, level: 2, text: What your search history says about you }
+  - { id: g-024, level: 2, text: A dating profile that guarantees failure }
+  - { id: g-025, level: 2, text: The worst possible last words }
+  - { id: g-026, level: 2, text: What you would say to your teenage self, unkindly }
+  - { id: g-027, level: 2, text: A rejected slogan for this game }
+  - { id: g-028, level: 2, text: The pettiest reason to unfollow someone }
+  - { id: g-029, level: 2, text: What the group photo does not show }
+  - { id: g-030, level: 2, text: A terrible thing to be confident about }
+  - { id: g-031, level: 3, text: What you would do with one hour of total immunity }
+  - { id: g-032, level: 3, text: The worst thing to say at a funeral }
+  - { id: g-033, level: 3, text: A crime you would commit if you knew you would get away with it }
+  - { id: g-034, level: 3, text: The most honest thing to put on your gravestone }
+  - { id: g-035, level: 3, text: What you would never admit to your therapist }
+  - { id: g-036, level: 3, text: A rule you would add to hell to make it worse }
+  - { id: g-037, level: 3, text: The pettiest reason to ruin someone's entire day }
+  - { id: g-038, level: 3, text: What would be on your permanent record }
+  - { id: g-039, level: 3, text: The secret you would sell for the least money }
+  - { id: g-040, level: 3, text: What you think about during the silence }

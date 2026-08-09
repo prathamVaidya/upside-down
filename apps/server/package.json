@@ -1,0 +1,16 @@
+{
+  "name": "@ud/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
+  },
+  "dependencies": {
+    "@ud/content": "workspace:*",
+    "@ud/engine": "workspace:*",
+    "@ud/protocol": "workspace:*",
+    "zod": "^4.0.5"
+  }
+}

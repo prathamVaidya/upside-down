@@ -1,0 +1,18 @@
+# Auto-filled when a player submits nothing, so a matchup is never dead.
+#
+# These are game content, not error strings. A fallback goes into the matchup as
+# a real answer and it can win — that is the joke (mockup 2n). Write them
+# pathetic, not apologetic.
+fallbacks:
+  - (stared at the phone until time ran out)
+  - (was still typing)
+  - (had something better and deleted it)
+  - (got distracted by the snacks)
+  - (thought somebody else would handle it)
+  - (typed one word and lost their nerve)
+  - (was explaining a previous joke)
+  - (put the phone face down with confidence)
+  - (looked up, looked down, looked up again)
+  - (chose violence, then chose nothing)
+  - (is still thinking about the last one)
+  - (was winning an argument in the group chat)

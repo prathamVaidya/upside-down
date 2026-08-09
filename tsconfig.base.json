@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "@ud/protocol": ["./packages/protocol/src/index.ts"],
+      "@ud/engine": ["./packages/engine/src/index.ts"],
+      "@ud/content": ["./packages/content/src/index.ts"],
+      "@ud/clay": ["./packages/clay/src/index.ts"],
+      "@ud/net": ["./packages/net/src/index.ts"],
+      "@ud/protocol/validate": ["./packages/protocol/src/validate.ts"],
+      "@ud/engine/bootstrap": ["./packages/engine/src/bootstrap.ts"]
+    }
+  }
+}
