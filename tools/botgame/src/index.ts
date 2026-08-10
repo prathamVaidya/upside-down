@@ -6,10 +6,12 @@
  * live outside the pure reducer and so cannot be covered by folding events over
  * state. It is the integration test, and it runs in CI.
  *
- *   bun run bots                    five players, one round
- *   bun run bots -- --players 8 --rounds 3 --drop
+ *   bun run bots                    five players, whatever rounds the server has
+ *   bun run bots -- --players 8 --drop --verbose
+ *   bun run bots -- --code GRUB     fill seats in a room a browser already opened
  */
-import { type ClientView, PROTOCOL_VERSION, type ServerMsg } from '@ud/protocol'
+import { PROTOCOL_VERSION } from '@ud/protocol'
+import { Bot, NAMES, openRoom, type Peer, sleep, watchRoom } from './bot.ts'
 
 type Args = {
   players: number
@@ -27,122 +29,10 @@ function parseArgs(argv: string[]): Args {
   const codeIdx = argv.indexOf('--code')
   return {
     players: get('--players', 5),
-    rounds: get('--rounds', 1),
+    rounds: get('--rounds', 3),
     drop: argv.includes('--drop'),
     verbose: argv.includes('--verbose'),
-    // Join a room a real browser already opened, instead of making one. Handy
-    // for filling seats while you watch the actual stage on a screen.
     code: codeIdx === -1 ? null : ((argv[codeIdx + 1] ?? null)?.toUpperCase() ?? null),
-  }
-}
-
-const NAMES = ['Priya', 'Tom', 'Ansh', 'Lena', 'Mo', 'Kit', 'Rae', 'Sol']
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-class Peer {
-  ws: WebSocket
-  view: ClientView | null = null
-  seatId: string | null = null
-  seatToken: string | null = null
-  code: string | null = null
-  errors: string[] = []
-  private onView: (view: ClientView) => void
-
-  constructor(url: string, onView: (view: ClientView) => void = () => {}) {
-    this.ws = new WebSocket(url)
-    this.onView = onView
-    this.ws.addEventListener('message', (ev) => {
-      const msg = JSON.parse(String(ev.data)) as ServerMsg
-      switch (msg.t) {
-        case 'welcome':
-          this.code = msg.code
-          this.seatId = msg.seatId
-          this.seatToken = msg.seatToken
-          break
-        case 'view':
-          this.view = msg.view
-          this.onView(msg.view)
-          break
-        case 'error':
-          this.errors.push(`${msg.code}: ${msg.message}`)
-          break
-        case 'reload':
-          this.errors.push(`reload: ${msg.reason}`)
-          break
-      }
-    })
-  }
-
-  open(): Promise<void> {
-    if (this.ws.readyState === WebSocket.OPEN) return Promise.resolve()
-    return new Promise((resolve, reject) => {
-      this.ws.addEventListener('open', () => resolve(), { once: true })
-      this.ws.addEventListener('error', () => reject(new Error('socket failed')), { once: true })
-    })
-  }
-
-  send(msg: unknown): void {
-    this.ws.send(JSON.stringify(msg))
-  }
-
-  close(): void {
-    this.ws.close()
-  }
-
-  /** Wait for a view satisfying `predicate`, or give up loudly. */
-  async until(label: string, predicate: (v: ClientView) => boolean, timeoutMs = 30_000) {
-    const deadline = Date.now() + timeoutMs
-    while (Date.now() < deadline) {
-      if (this.view && predicate(this.view)) return this.view
-      await sleep(20)
-    }
-    throw new Error(
-      `timed out waiting for ${label} (last phase: ${this.view?.phase.name ?? 'none'})`,
-    )
-  }
-}
-
-/** A player who writes something and votes for whatever is on the left. */
-class Bot extends Peer {
-  private written = new Set<number>()
-  private voted = new Set<string>()
-
-  constructor(
-    url: string,
-    public name: string,
-  ) {
-    super(url)
-    this.ws.addEventListener('message', () => this.act())
-  }
-
-  private act(): void {
-    const view = this.view
-    if (!view) return
-
-    if (view.phase.name === 'writing' && view.phase.assignment) {
-      const { slot } = view.phase.assignment
-      if (!this.written.has(slot)) {
-        this.written.add(slot)
-        this.send({ t: 'answer.submit', slot, text: `${this.name} says thing ${slot}` })
-      }
-    }
-
-    if (view.phase.name === 'voting' && view.phase.youMayVote && view.phase.yourVote === null) {
-      const key = `${view.round}:${view.phase.matchupNumber}`
-      if (!this.voted.has(key)) {
-        this.voted.add(key)
-        this.send({ t: 'vote.cast', side: Math.random() < 0.5 ? 'a' : 'b' })
-      }
-    }
-
-    if (view.phase.name === 'finaleVoting' && view.phase.votesLeft > 0) {
-      // One vote per view, not all three at once: the server sends a fresh view
-      // after each, so spending them one at a time is what a thumb on a stepper
-      // actually does — and it exercises the running `votesLeft` count.
-      const ballot = view.phase.entries.filter((e) => !e.isYours)
-      const pick = ballot[Math.floor(Math.random() * ballot.length)]
-      if (pick) this.send({ t: 'finale.vote', entrySeatId: pick.id, delta: 1 })
-    }
   }
 }
 
@@ -151,21 +41,14 @@ async function main() {
   const url = process.env.UD_URL ?? 'ws://localhost:3000/ws'
   const started = Date.now()
 
-  console.log(`bot game · ${args.players} players · ${args.rounds} round(s) · ${url}`)
+  console.log(`bot game · ${args.players} players · ${url}`)
 
   // The television opens the room — unless a real browser already did.
-  const stage = new Peer(url)
-  await stage.open()
-  if (args.code) {
-    stage.send({ t: 'stage.attach', v: PROTOCOL_VERSION, code: args.code })
-  } else {
-    stage.send({ t: 'stage.create', v: PROTOCOL_VERSION })
-  }
-  await stage.until('a room code', () => stage.code !== null)
-  const code = stage.code!
+  const { stage, code } = args.code
+    ? { stage: await watchRoom(url, args.code), code: args.code }
+    : await openRoom(url)
   console.log(`  room ${code}`)
 
-  // Phones arrive.
   const bots: Bot[] = []
   for (let i = 0; i < args.players; i++) {
     const bot = new Bot(url, NAMES[i] ?? `Bot${i}`)
@@ -181,7 +64,7 @@ async function main() {
 
   await stage.until(
     'a full lobby',
-    (v) => v.phase.name === 'lobby' && v.seats.length === args.players,
+    (v) => v.phase.name === 'lobby' && v.seats.length >= args.players,
   )
 
   host.send({ t: 'game.start' })
@@ -211,8 +94,7 @@ async function main() {
   if (args.verbose) {
     let last = ''
     setInterval(() => {
-      const phase = stage.view?.phase.name ?? '?'
-      const label = `${stage.view?.round}:${phase}`
+      const label = `${stage.view?.round}:${stage.view?.phase.name ?? '?'}`
       if (label !== last) {
         last = label
         console.log(`    → ${label}`)
@@ -240,14 +122,14 @@ async function main() {
   console.log(`    finale swing: ${rows[0]?.delta ?? 0} of the winner's ${top}`)
 
   // Nobody should have collected an error along the way.
-  const errors = [stage, ...bots].flatMap((p) => p.errors)
+  const errors = [stage as Peer, ...bots].flatMap((p) => p.errors)
   if (errors.length > 0) {
     console.error(`\n  errors reported by clients:\n${errors.map((e) => `    ${e}`).join('\n')}`)
     process.exit(1)
   }
 
-  if (final.phase.rows.length !== args.players) {
-    console.error(`  expected ${args.players} on the scoreboard, got ${final.phase.rows.length}`)
+  if (rows.length !== args.players) {
+    console.error(`  expected ${args.players} on the scoreboard, got ${rows.length}`)
     process.exit(1)
   }
 

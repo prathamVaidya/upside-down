@@ -43,7 +43,7 @@ export function App() {
   const phase = view.phase
 
   return (
-    <div className="stage">
+    <div className="stage" data-testid="stage" data-phase={phase.name} data-round={view.round}>
       {status === 'dropped' && (
         <div
           style={{

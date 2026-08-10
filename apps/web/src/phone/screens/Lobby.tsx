@@ -61,7 +61,13 @@ export function Lobby({
 
       {isHost ? (
         <>
-          <ClayButton seed="start" tone="sage" disabled={!phase.canStart} onClick={onStart}>
+          <ClayButton
+            seed="start"
+            data-testid="start"
+            tone="sage"
+            disabled={!phase.canStart}
+            onClick={onStart}
+          >
             start the game
           </ClayButton>
           <div className="phone__hint">

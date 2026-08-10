@@ -8,6 +8,7 @@ import { Lobby } from './screens/Lobby.tsx'
 import { Vote } from './screens/Vote.tsx'
 import { Waiting } from './screens/Waiting.tsx'
 import { Write } from './screens/Write.tsx'
+import { usePhaseAttribute } from './usePhaseAttribute.ts'
 
 /** `/r/GRUB` is what the idle screen's QR code points at. */
 function codeFromPath(): string {
@@ -17,6 +18,10 @@ function codeFromPath(): string {
 
 export function App() {
   const { view, status, error, offsetMs, mustReload, client, seatId } = useRoom('phone')
+
+  // Mirrored onto <body> rather than a wrapper div, because each phone screen
+  // owns its own root element and a wrapper would break the sticky layouts.
+  usePhaseAttribute(view && seatId && view.you ? view.phase.name : 'join', status)
 
   if (mustReload) {
     return (

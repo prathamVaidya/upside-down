@@ -51,3 +51,32 @@ jobs:
           deep=$(curl -s http://localhost:3000/r/GRUB | md5sum | cut -d' ' -f1)
           test "$phone" != "$stage" || { echo "::error::/ and /stage served the same document"; exit 1; }
           test "$phone" = "$deep" || { echo "::error::/r/CODE did not serve the phone"; exit 1; }
+
+  # Separate job: Cypress needs its own browser and takes a few minutes, and a
+  # failure here should be legible on its own rather than buried under the unit
+  # suite. Reuses nothing from `check`, so it can run in parallel.
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.2
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+
+      - name: e2e
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          start: bun run e2e:serve
+          wait-on: http://localhost:3100/health
+          wait-on-timeout: 60
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

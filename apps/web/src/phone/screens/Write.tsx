@@ -72,6 +72,7 @@ function Composer({
 
       <textarea
         className="ud-input"
+        data-testid="answer"
         style={{ minHeight: 104, fontSize: 17, lineHeight: 1.4 }}
         value={text}
         onChange={(e) => setText(e.target.value.slice(0, ANSWER_MAX))}
@@ -84,6 +85,7 @@ function Composer({
 
       <ClayButton
         seed={`submit-${assignment.slot}`}
+        data-testid="submit"
         tone="brick"
         disabled={!ready}
         onClick={() => onSubmit(assignment.slot, text)}

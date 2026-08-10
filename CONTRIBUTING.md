@@ -59,8 +59,20 @@ If you touched anything in `apps/server`, `packages/engine` or `packages/net`, a
 
 ```sh
 UD_FAST=1 bun apps/server/src/index.ts &
-bun run bots -- --players 8 --rounds 3 --drop
+bun run bots -- --players 8 --drop
 ```
+
+And if you touched a screen, run it in a real browser:
+
+```sh
+bun run e2e          # headless
+bun run e2e:open     # watch it
+```
+
+E2E specs address the UI through `data-testid`, never through copy. Copy is the part of this
+product most likely to change, and a test that breaks when a joke gets funnier is a bad test. The
+one exception is copy that *is* the behaviour under test — "authors hidden until reveal" earns a
+`cy.contains`, because that sentence is the promise being checked.
 
 ## Interface copy
 

@@ -401,8 +401,26 @@ already emits `{ kind: 'sound', cue }` effects, so audio can land later without 
 | Redaction | Full-game walk asserting no pre-reveal authorship in any serialised payload |
 | Screens | Every stage and phone screen rendered against views a real game produced |
 | `tools/botgame` | N bots over real sockets, real server, full game to `winner` — runs in CI |
-| Fuzz | Bots that drop, submit late, double-vote, and send garbage *(not yet written)* |
-| Smoke | Playwright, one stage + three phone contexts *(milestone 4)* |
+| `e2e/` | Cypress: a real browser tapping real controls, against the built app |
+| Fuzz | Bots that submit late, double-vote, and send garbage *(not yet written)* |
+
+### Browser tests
+
+Cypress gives one browser context per test; the game needs three players and a television before
+it will do anything. So the browser plays **one seat for real** and `e2e/tasks.ts` seats the rest
+over the same WebSocket a phone uses — the room genuinely has four participants, they are simply
+not all rendered. One spec drives the phone, another drives the stage, so both surfaces get real
+browser coverage. Playwright would do this with multiple contexts instead; Cypress plus bots gets
+there without fighting the tool.
+
+They run against the **built** app served by the real Bun server, not the Vite dev server. The
+production artefact and the production routing are part of what is being tested — `/stage` serving
+the phone was a real bug, and a dev server with different routing would not have caught it.
+
+Phases run on server clocks, so the specs never assume a fixed sequence: they read
+`body[data-phase]` and act on whatever screen they find. Every phase clock is individually
+settable by environment variable so the E2E run can be slow enough to type into and still finish
+in a couple of minutes.
 
 The screen tests get their fixtures from `packages/engine/test/drive.ts`, which plays a real game
 and samples one `ClientView` per phase, per seat. Nothing is hand-written, so a change to the

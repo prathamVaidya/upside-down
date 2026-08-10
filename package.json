@@ -17,15 +17,21 @@
     "build": "bun run --cwd apps/web build",
     "typecheck": "tsc --build --force",
     "lint": "biome check .",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "e2e:serve": "UD_E2E_PORT=3100 PORT=3100 UD_WRITING_MS=20000 UD_VOTING_MS=12000 UD_FINALE_VOTING_MS=20000 UD_REVEAL_MS=1200 UD_SWEEP_REVEAL_MS=1400 UD_FINALE_REVEAL_MS=2500 UD_SCOREBOARD_MS=2000 UD_SETTLE_MS=200 bun apps/server/src/index.ts",
+    "e2e": "bun run build && start-server-and-test e2e:serve http://localhost:3100/health 'cypress run'",
+    "e2e:open": "start-server-and-test e2e:serve http://localhost:3100/health 'cypress open --e2e --browser electron'"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
     "@testing-library/react": "^16.3.2",
     "@types/bun": "^1.2.19",
+    "@types/node": "^26.2.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "cypress": "^15.20.0",
     "jsdom": "^30.0.1",
+    "start-server-and-test": "^3.0.12",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   }

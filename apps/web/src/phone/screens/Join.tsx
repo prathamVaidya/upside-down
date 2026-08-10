@@ -36,6 +36,7 @@ export function Join({
       </div>
       <input
         className="ud-input codeinput"
+        data-testid="code-input"
         value={code}
         onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
         maxLength={4}
@@ -51,6 +52,7 @@ export function Join({
       </div>
       <input
         className="ud-input"
+        data-testid="name-input"
         style={{ fontSize: 19, fontWeight: 500 }}
         value={name}
         onChange={(e) => setName(e.target.value.slice(0, NAME_MAX))}
@@ -66,7 +68,13 @@ export function Join({
 
       <div className="phone__spacer" />
 
-      <ClayButton seed="join-button" tone="brick" disabled={!ready} onClick={submit}>
+      <ClayButton
+        seed="join-button"
+        data-testid="join"
+        tone="brick"
+        disabled={!ready}
+        onClick={submit}
+      >
         get in
       </ClayButton>
 

@@ -53,24 +53,32 @@ export function FinaleVote({
 
       <div className="ballot">
         {ballot.map((entry) => (
-          <Clay key={entry.id} seed={`ballot-${entry.id}`} tone="card" className="ballot__row">
+          <Clay
+            key={entry.id}
+            seed={`ballot-${entry.id}`}
+            tone="card"
+            className="ballot__row"
+            data-testid="ballot-row"
+          >
             <div className="ballot__text">"{entry.text}"</div>
             <div className="ballot__stepper">
               <button
                 type="button"
                 className="ud-press ballot__step"
+                data-testid="vote-minus"
                 onClick={() => onVote(entry.id, -1)}
                 disabled={entry.yourVotes === 0}
                 aria-label={`take a vote off "${entry.text}"`}
               >
                 −
               </button>
-              <div className="ballot__count" aria-live="polite">
+              <div className="ballot__count" data-testid="vote-count" aria-live="polite">
                 {entry.yourVotes}
               </div>
               <button
                 type="button"
                 className="ud-press ballot__step"
+                data-testid="vote-plus"
                 onClick={() => onVote(entry.id, 1)}
                 disabled={phase.votesLeft === 0}
                 aria-label={`put a vote on "${entry.text}"`}

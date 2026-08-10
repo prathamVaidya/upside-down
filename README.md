@@ -57,10 +57,28 @@ you can watch the real stage while eight bots play.
 
 ```sh
 bun run test      # content lint, engine, redaction, client render
+bun run bots      # a whole game over real sockets (needs a server running)
+bun run e2e       # Cypress, in a real browser, against the built app
 ```
 
-The game rules live in a pure reducer, so a complete three-round game with eight players runs
-headlessly in about twenty milliseconds. There is no mocking anywhere in the suite.
+Four layers, each proving something the one below it cannot:
+
+| | What it covers |
+|---|---|
+| `packages/engine` | the rules. A three-round eight-player game runs headlessly in ~20ms |
+| screen tests | every screen rendered against state a real game produced |
+| `bun run bots` | the socket boundary, timers, reconnection — no browser |
+| `bun run e2e` | a person tapping real controls in a real browser |
+
+There is no mocking anywhere in any of them.
+
+`bun run e2e` builds the app, starts the Bun server on `:3100` with phase clocks slowed enough to
+type into, and runs Cypress. Use `bun run e2e:open` to watch it happen.
+
+Cypress gives one browser context per test, and this game needs four participants before it will
+do anything, so the browser plays one seat for real and `e2e/tasks.ts` seats the rest over the
+same WebSocket a phone uses. Nothing reaches into the server's internals — a bot sends exactly
+what a phone sends, so whatever the specs prove is true of real clients too.
 
 ## Adding prompts
 

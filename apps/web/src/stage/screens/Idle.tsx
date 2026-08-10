@@ -23,7 +23,7 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
         room code — go to {joinUrl} on your phone and type it in
       </p>
 
-      <div className="code">
+      <div className="code" data-testid="room-code">
         {letters.map((ch, i) => (
           <Clay
             // The last tile is upside down, always. The name has to be earned by

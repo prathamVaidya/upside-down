@@ -23,16 +23,23 @@ export function Vote({
   if (phase.yourSide) return <SittingOut view={view} phase={phase} offsetMs={offsetMs} />
 
   const voted = phase.yourVote !== null
+  // Somebody who joined after the lobby is handed a ballot with no explanation
+  // of why they were never asked to write. Say it, quietly, once.
+  const audience = view.you?.kind === 'audience'
 
   return (
     <div className="phone">
       <div className="phone__top">
-        <div className="phone__label">{voted ? 'locked in' : "which one's funnier"}</div>
+        <div className="phone__label">
+          {audience && <span data-testid="audience-badge">audience · </span>}
+          {voted ? 'locked in' : "which one's funnier"}
+        </div>
         <Countdown endsAt={view.phaseEndsAt} offsetMs={offsetMs} word="to vote" />
       </div>
 
       <ClayButton
         seed="choice-a"
+        data-testid="choice-a"
         tone="card"
         className={`choice ${phase.yourVote === 'a' ? 'choice--chosen' : ''}`}
         disabled={voted}
@@ -46,6 +53,7 @@ export function Vote({
 
       <ClayButton
         seed="choice-b"
+        data-testid="choice-b"
         tone="card"
         className={`choice ${phase.yourVote === 'b' ? 'choice--chosen' : ''}`}
         disabled={voted}
