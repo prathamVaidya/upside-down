@@ -15,21 +15,6 @@
         "vitest": "^3.2.4",
       },
     },
-    "apps/phone": {
-      "name": "@ud/phone",
-      "version": "0.1.0",
-      "dependencies": {
-        "@ud/clay": "workspace:*",
-        "@ud/net": "workspace:*",
-        "@ud/protocol": "workspace:*",
-        "react": "^19.1.1",
-        "react-dom": "^19.1.1",
-      },
-      "devDependencies": {
-        "@vitejs/plugin-react": "^4.7.0",
-        "vite": "^7.0.6",
-      },
-    },
     "apps/server": {
       "name": "@ud/server",
       "version": "0.1.0",
@@ -40,8 +25,8 @@
         "zod": "^4.0.5",
       },
     },
-    "apps/stage": {
-      "name": "@ud/stage",
+    "apps/web": {
+      "name": "@ud/web",
       "version": "0.1.0",
       "dependencies": {
         "@ud/clay": "workspace:*",
@@ -340,13 +325,11 @@
 
     "@ud/net": ["@ud/net@workspace:packages/net"],
 
-    "@ud/phone": ["@ud/phone@workspace:apps/phone"],
-
     "@ud/protocol": ["@ud/protocol@workspace:packages/protocol"],
 
     "@ud/server": ["@ud/server@workspace:apps/server"],
 
-    "@ud/stage": ["@ud/stage@workspace:apps/stage"],
+    "@ud/web": ["@ud/web@workspace:apps/web"],
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@4.7.0", "", { "dependencies": { "@babel/core": "^7.28.0", "@babel/plugin-transform-react-jsx-self": "^7.27.1", "@babel/plugin-transform-react-jsx-source": "^7.27.1", "@rolldown/pluginutils": "1.0.0-beta.27", "@types/babel__core": "^7.20.5", "react-refresh": "^0.17.0" }, "peerDependencies": { "vite": "^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA=="],
 

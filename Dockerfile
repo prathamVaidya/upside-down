@@ -11,8 +11,7 @@ COPY packages/engine/package.json packages/engine/
 COPY packages/clay/package.json packages/clay/
 COPY packages/net/package.json packages/net/
 COPY apps/server/package.json apps/server/
-COPY apps/stage/package.json apps/stage/
-COPY apps/phone/package.json apps/phone/
+COPY apps/web/package.json apps/web/
 COPY tools/botgame/package.json tools/botgame/
 RUN bun install --frozen-lockfile
 

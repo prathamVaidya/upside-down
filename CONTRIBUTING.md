@@ -6,8 +6,9 @@
 bun install && bun dev
 ```
 
-Big screen on http://localhost:5173, phones on http://localhost:5174. That is the whole setup —
-if you needed anything else, that is a bug in this file.
+Big screen on http://localhost:5173/stage, phones on http://localhost:5173. Those are the same
+URLs production uses. That is the whole setup — if you needed anything else, that is a bug in this
+file.
 
 ## The rules that matter
 

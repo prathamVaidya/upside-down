@@ -1,10 +1,10 @@
 {
-  "name": "@ud/stage",
+  "name": "@ud/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },

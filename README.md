@@ -21,13 +21,15 @@ bun install
 bun dev
 ```
 
-Then open **http://localhost:5173** on the big screen and **http://localhost:5174** on phones.
-Both proxy their socket to the Bun server on `:3000`.
+Then open **http://localhost:5173/stage** on the big screen and **http://localhost:5173** on
+phones. The Vite server proxies the socket to the Bun server on `:3000`, and routes the two
+surfaces exactly the way production does — same URLs in both, so you are never debugging the
+wrong screen.
 
 For a single-process production build:
 
 ```sh
-bun run build     # both clients into apps/server/public/
+bun run build     # both surfaces into apps/server/public/
 bun apps/server/src/index.ts
 ```
 
@@ -89,7 +91,8 @@ Read [ARCHITECTURE.md](./ARCHITECTURE.md) before changing anything. The short ve
 - `packages/protocol` is the contract. `@ud/protocol/validate` holds the schemas and stays server-side.
 - `packages/clay` is the material system. Every visible object is CSS; **there is not one image
   asset in this product, and there should not be.**
-- `apps/stage` is a stage. `apps/phone` is a remote control. They are deliberately not the same design.
+- `apps/web` builds two documents: `/stage` is a stage, `/` is a remote control. Deliberately not
+  the same design, and never the same layout responding to a breakpoint.
 - Clients never import the engine, and never receive room state — only the redacted view for
   their own seat. That is what stops a player with devtools from seeing who wrote what.
 

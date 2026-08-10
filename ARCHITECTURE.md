@@ -14,7 +14,7 @@ Three programs and one shared brain.
 ```
    TV / laptop lid                    phones (3–8 players + audience)
    ┌──────────────┐                   ┌──────┐ ┌──────┐ ┌──────┐
-   │  apps/stage  │                   │ apps/phone ...              │
+   │ web  /stage  │                   │ web  /   ·   /r/GRUB        │
    └──────┬───────┘                   └──┬───┘ └──┬───┘ └──┬───────┘
           │  WebSocket (JSON)            │        │        │
           └──────────────┬───────────────┴────────┴────────┘
@@ -74,11 +74,12 @@ upside-down/
 │
 ├── apps/
 │   ├── server/               Bun.serve — sockets, timers, room registry
-│   │   └── src/{index,rooms,room,socket,broadcast,clock,static}.ts
-│   ├── stage/                Vite — the TV
-│   │   └── src/screens/{Idle,Setup,Writing,Voting,Reveal,Sweep,Scoreboard,Finale,Winner}.tsx
-│   └── phone/                Vite — the remote control
-│       └── src/screens/{Join,Lobby,Write,Submitted,Vote,SittingOut,FinaleVote,Audience,Dropped,NotFound}.tsx
+│   │   └── src/{index,rooms,room,socket,config}.ts
+│   └── web/                  Vite, two HTML entry points, one bundle graph
+│       ├── index.html            the phone
+│       ├── stage/index.html      the television
+│       ├── src/stage/screens/{Idle,Writing,Voting,Reveal,Scoreboard,Winner}.tsx
+│       └── src/phone/screens/{Join,Lobby,Write,Vote,Waiting,Dropped}.tsx
 │
 └── tools/
     └── botgame/              headless N-bot full-game runner, plus the fuzzer
@@ -92,8 +93,8 @@ CI, not by good intentions.
 ```
 protocol ← (nothing)          engine ← protocol, content
 clay     ← protocol           server ← protocol(+validate), engine, content
-content  ← protocol           stage  ← protocol, clay, net
-net      ← protocol           phone  ← protocol, clay, net
+content  ← protocol           web    ← protocol, clay, net
+net      ← protocol
 ```
 
 Two of these matter more than the rest:
@@ -106,12 +107,28 @@ what keeps a full game runnable in a unit test.
 projection and belongs on the server. This kills client-side rule duplication, and it makes it
 structurally impossible to ship un-redacted state types into a bundle a player can read.
 
-### Two client apps, not one app with routes
+### Two documents, one app
 
-`apps/stage` and `apps/phone` are separate Vite entry points sharing `@ud/clay`. A route split in
-one app would ship the confetti system, the podium, and Doug's full pose set to every phone at the
-party. They share a material vocabulary, not a bundle — which is exactly what section 4 of the
-brief asks for.
+`apps/web` builds two HTML entry points from one bundle graph. React and the clay system are
+emitted once and shared; each surface adds about 3KB of its own.
+
+The original plan had these as two separate Vite apps, on the theory that a route split would ship
+the confetti system and Doug's pose set to every phone at the party. Measured, that difference was
+about 4KB — React dominates both bundles, so the split bought nothing. What survives is narrower:
+
+- **Separate `<head>`s.** The phone needs `maximum-scale=1, viewport-fit=cover` so iOS does not
+  zoom when the keyboard opens during writing. That is wrong on a television, and setting viewport
+  meta at runtime before first paint is unreliable in Safari.
+- **Separate cache lifetimes.** Changing the winner screen does not invalidate the phone's chunk.
+
+Two *apps* also cost something real: development served the surfaces on two ports while production
+served them on two paths, so `/stage` on a dev port silently fell through Vite's SPA fallback to
+the phone and the two surfaces looked identical. `apps/web/vite.config.ts` now mirrors the server's
+routing table, and CI asserts the two documents differ.
+
+The design separation the brief asks for — a stage and a remote control, not one responsive layout
+— is a component-level discipline, enforced by `src/stage` and `src/phone` being separate trees
+with separate CSS. It never needed separate build targets.
 
 ### Serving
 
@@ -124,17 +141,20 @@ One process, one container. Vite builds both clients into `apps/server/public/`,
 | `/stage` | stage app — the host opens this on the TV |
 | `/ws` | WebSocket upgrade |
 
-In development the two Vite servers proxy `/ws` to Bun on `:3000`, so hot reload works on both
-clients while the server holds live rooms.
+In development one Vite server on `:5173` serves the same four routes and proxies `/ws` to Bun on
+`:3000`, so hot reload works on both surfaces while the server holds live rooms. The dev routing
+table lives in `apps/web/vite.config.ts` and deliberately mirrors the one above — CI asserts `/`
+and `/stage` return different documents, because when they did not the symptom was simply that
+both URLs looked the same.
 
 ### Root scripts
 
 ```
-bun dev             server watch + both Vite servers
+bun dev             server watch + the Vite server on :5173
 bun test            engine units, property tests, redaction walk, bot game
 bun run bots        full game with N synthetic players against a real server
 bun run content:check   schema, duplicate ids, duplicate text, length ceiling, wordlist
-bun run build       both clients into the server's public dir
+bun run build       both surfaces into the server's public dir
 ```
 
 ### Deliberately not doing

@@ -11,12 +11,12 @@
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { samplePhases } from '../../../packages/engine/test/drive.ts'
-import { Idle } from '../src/screens/Idle.tsx'
-import { Reveal } from '../src/screens/Reveal.tsx'
-import { Scoreboard } from '../src/screens/Scoreboard.tsx'
-import { Voting } from '../src/screens/Voting.tsx'
-import { Winner } from '../src/screens/Winner.tsx'
-import { Writing } from '../src/screens/Writing.tsx'
+import { Idle } from '../src/stage/screens/Idle.tsx'
+import { Reveal } from '../src/stage/screens/Reveal.tsx'
+import { Scoreboard } from '../src/stage/screens/Scoreboard.tsx'
+import { Voting } from '../src/stage/screens/Voting.tsx'
+import { Winner } from '../src/stage/screens/Winner.tsx'
+import { Writing } from '../src/stage/screens/Writing.tsx'
 
 const samples = samplePhases(5)
 const sample = (phase: string) => {

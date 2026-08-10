@@ -65,34 +65,33 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
  * Static files, built by Vite into `apps/server/public/`. Missing in
  * development, where Vite serves the clients itself — so say that plainly
  * instead of returning a bare 404 that looks like a bug.
+ *
+ * These routes are mirrored by `apps/web/vite.config.ts` so the dev server and
+ * this one agree on what lives where. They must not drift: when they did, the
+ * dev server's SPA fallback served the phone at `/stage` and the two surfaces
+ * became indistinguishable.
  */
 function serveStatic(pathname: string): Response {
   if (!existsSync(PUBLIC_DIR)) {
     return new Response(
-      'no client build here. run `bun dev` for the Vite servers, or `bun run build` first.',
+      'no client build here. run `bun dev` for the Vite server, or `bun run build` first.',
       { status: 503, headers: { 'content-type': 'text/plain' } },
     )
   }
 
-  // `/stage` is the television. `/` and `/r/GRUB` are both the phone — the
-  // second is what the idle screen's QR code points at, with the code
-  // pre-filled by the client from the path.
-  const app = pathname === '/stage' || pathname.startsWith('/stage/') ? 'stage' : 'phone'
-  const rest = (app === 'stage' ? pathname.slice('/stage'.length) : pathname) || '/'
-
-  // Serve a real file if the path names one; otherwise fall through to the
-  // app's index so client-side paths like /r/GRUB still boot.
-  const candidate = join(PUBLIC_DIR, app, rest)
-  if (
-    candidate.startsWith(PUBLIC_DIR) &&
-    statSync(candidate, { throwIfNoEntry: false })?.isFile()
-  ) {
+  // A real file wins — that is every hashed asset under /assets.
+  const candidate = join(PUBLIC_DIR, pathname)
+  if (candidate.startsWith(PUBLIC_DIR) && statSync(candidate, { throwIfNoEntry: false })?.isFile()) {
     return new Response(Bun.file(candidate))
   }
 
-  return new Response(Bun.file(join(PUBLIC_DIR, app, 'index.html')), {
-    headers: { 'content-type': 'text/html' },
-  })
+  // Otherwise pick a document. `/stage` is the television; everything else is
+  // the phone, including `/r/GRUB` — the QR-code deep link, whose code the
+  // client reads back off the path.
+  const isStage = pathname === '/stage' || pathname.startsWith('/stage/')
+  const document = isStage ? join(PUBLIC_DIR, 'stage', 'index.html') : join(PUBLIC_DIR, 'index.html')
+
+  return new Response(Bun.file(document), { headers: { 'content-type': 'text/html' } })
 }
 
 if (import.meta.main) {

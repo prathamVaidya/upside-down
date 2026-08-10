@@ -10,11 +10,11 @@
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { samplePhases } from '../../../packages/engine/test/drive.ts'
-import { Join } from '../src/screens/Join.tsx'
-import { Lobby } from '../src/screens/Lobby.tsx'
-import { Vote } from '../src/screens/Vote.tsx'
-import { Waiting } from '../src/screens/Waiting.tsx'
-import { Write } from '../src/screens/Write.tsx'
+import { Join } from '../src/phone/screens/Join.tsx'
+import { Lobby } from '../src/phone/screens/Lobby.tsx'
+import { Vote } from '../src/phone/screens/Vote.tsx'
+import { Waiting } from '../src/phone/screens/Waiting.tsx'
+import { Write } from '../src/phone/screens/Write.tsx'
 
 const samples = samplePhases(5)
 const sample = (phase: string) => {
