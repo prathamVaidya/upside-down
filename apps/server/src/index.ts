@@ -81,7 +81,10 @@ function serveStatic(pathname: string): Response {
 
   // A real file wins — that is every hashed asset under /assets.
   const candidate = join(PUBLIC_DIR, pathname)
-  if (candidate.startsWith(PUBLIC_DIR) && statSync(candidate, { throwIfNoEntry: false })?.isFile()) {
+  if (
+    candidate.startsWith(PUBLIC_DIR) &&
+    statSync(candidate, { throwIfNoEntry: false })?.isFile()
+  ) {
     return new Response(Bun.file(candidate))
   }
 
@@ -89,7 +92,9 @@ function serveStatic(pathname: string): Response {
   // the phone, including `/r/GRUB` — the QR-code deep link, whose code the
   // client reads back off the path.
   const isStage = pathname === '/stage' || pathname.startsWith('/stage/')
-  const document = isStage ? join(PUBLIC_DIR, 'stage', 'index.html') : join(PUBLIC_DIR, 'index.html')
+  const document = isStage
+    ? join(PUBLIC_DIR, 'stage', 'index.html')
+    : join(PUBLIC_DIR, 'index.html')
 
   return new Response(Bun.file(document), { headers: { 'content-type': 'text/html' } })
 }

@@ -134,6 +134,15 @@ class Bot extends Peer {
         this.send({ t: 'vote.cast', side: Math.random() < 0.5 ? 'a' : 'b' })
       }
     }
+
+    if (view.phase.name === 'finaleVoting' && view.phase.votesLeft > 0) {
+      // One vote per view, not all three at once: the server sends a fresh view
+      // after each, so spending them one at a time is what a thumb on a stepper
+      // actually does — and it exercises the running `votesLeft` count.
+      const ballot = view.phase.entries.filter((e) => !e.isYours)
+      const pick = ballot[Math.floor(Math.random() * ballot.length)]
+      if (pick) this.send({ t: 'finale.vote', entrySeatId: pick.id, delta: 1 })
+    }
   }
 }
 
@@ -217,6 +226,18 @@ async function main() {
   const elapsed = ((Date.now() - started) / 1000).toFixed(1)
   console.log(`  winner: ${final.phase.championName} on ${final.phase.championScore}`)
   console.log(`  rounds played: ${final.round}`)
+
+  // The scoring numbers are guesses until somebody plays this for real, so
+  // print the spread — a finale that always overturns the board, or never
+  // does, shows up here long before it shows up at a party.
+  const rows = final.phase.rows
+  const top = rows[0]?.score ?? 0
+  console.log('  final scores:')
+  for (const row of rows) {
+    const bar = '█'.repeat(Math.round((row.score / Math.max(1, top)) * 24))
+    console.log(`    ${row.name.padEnd(6)} ${String(row.score).padStart(6)}  ${bar}`)
+  }
+  console.log(`    finale swing: ${rows[0]?.delta ?? 0} of the winner's ${top}`)
 
   // Nobody should have collected an error along the way.
   const errors = [stage, ...bots].flatMap((p) => p.errors)

@@ -183,6 +183,14 @@ export function handleMessage(conn: Connection, rooms: Rooms, raw: string): void
     case 'vote.cast':
       room.dispatch({ type: 'vote.cast', seatId, side: msg.side })
       return
+    case 'finale.vote':
+      room.dispatch({
+        type: 'finale.vote',
+        seatId,
+        entrySeatId: msg.entrySeatId,
+        delta: msg.delta,
+      })
+      return
   }
 }
 

@@ -3,9 +3,9 @@ import { drawPrompts } from './deck.ts'
 import type { Effect } from './events.ts'
 import { chooseOrder, cyclePairs } from './pairing.ts'
 import { pick } from './rng.ts'
-import { applyReveal, isSweep, tally } from './scoring.ts'
+import { applyFinaleReveal, applyReveal, isSweep, tally } from './scoring.ts'
 import type { Matchup, RoomState } from './state.ts'
-import { eligibleVoters, pairKey, writers } from './state.ts'
+import { eligibleVoters, finaleVoters, pairKey, votesSpent, writers } from './state.ts'
 
 /**
  * Put a clock on the current phase.
@@ -26,12 +26,87 @@ function disarm(state: RoomState): void {
   state.phaseEndsAt = null
 }
 
-export function enterWriting(state: RoomState, ctx: Ctx, effects: Effect[]): void {
+/** Reset the per-round bookkeeping every round opens with. */
+function openRound(state: RoomState): void {
   state.round++
   for (const s of state.seats) {
     s.delta = 0
     s.lostLast = false
   }
+}
+
+/**
+ * The finale: one prompt for everybody, one answer each.
+ *
+ * It rides the same `writing` phase and the same `assignments` map as a normal
+ * round, so the phone's writing screen does not have to know the difference —
+ * it just receives one prompt instead of two.
+ */
+export function enterFinaleWriting(state: RoomState, ctx: Ctx, effects: Effect[]): void {
+  openRound(state)
+
+  const [prompt] = drawPrompts(state, ctx.library, 1)
+  const entrants = writers(state)
+
+  state.matchups = []
+  state.matchupIndex = 0
+  state.finale = {
+    promptId: prompt!.id,
+    promptText: prompt!.text,
+    entries: entrants.map((s) => ({
+      seatId: s.id,
+      text: '',
+      submitted: false,
+      fallback: false,
+      points: 0,
+    })),
+    votes: {},
+    sweptBy: null,
+  }
+
+  state.assignments = {}
+  for (const s of entrants) state.assignments[s.id] = [{ kind: 'finale' }]
+
+  state.phase = 'writing'
+  arm(state, effects, ctx.now + state.config.writingMs)
+  effects.push({ kind: 'sound', cue: 'start' })
+}
+
+export function enterFinaleVoting(state: RoomState, ctx: Ctx, effects: Effect[]): void {
+  state.phase = 'finaleVoting'
+  arm(state, effects, ctx.now + state.config.finaleVotingMs)
+}
+
+/** Everyone has spent every vote they had. */
+export function finaleVotingComplete(state: RoomState): boolean {
+  const finale = state.finale
+  if (!finale) return false
+  const voters = finaleVoters(state)
+  if (voters.length === 0) return false
+  return voters.every((v) => {
+    // A player cannot vote for their own answer, so with only their own entry
+    // on the ballot there is nothing for them to spend votes on.
+    const available = finale.entries.filter((e) => e.seatId !== v.id).length
+    return available === 0 || votesSpent(finale, v.id) >= state.config.votesPerFinaleVoter
+  })
+}
+
+export function enterFinaleReveal(state: RoomState, ctx: Ctx, effects: Effect[]): void {
+  const finale = state.finale
+  if (!finale) {
+    enterWinner(state, ctx, effects)
+    return
+  }
+
+  applyFinaleReveal(state, finale)
+  state.phase = 'finaleReveal'
+  arm(state, effects, ctx.now + state.config.finaleRevealMs)
+  effects.push({ kind: 'sound', cue: finale.sweptBy ? 'sweep' : 'flip' })
+}
+
+export function enterWriting(state: RoomState, ctx: Ctx, effects: Effect[]): void {
+  openRound(state)
+  state.finale = null
 
   const ids = writers(state).map((s) => s.id)
   const order = chooseOrder(state, ids, state.pastPairs)
@@ -56,8 +131,8 @@ export function enterWriting(state: RoomState, ctx: Ctx, effects: Effect[]): voi
   state.assignments = {}
   order.forEach((id, i) => {
     state.assignments[id] = [
-      { matchupIndex: i, side: 'a' },
-      { matchupIndex: (i - 1 + order.length) % order.length, side: 'b' },
+      { kind: 'matchup', matchupIndex: i, side: 'a' },
+      { kind: 'matchup', matchupIndex: (i - 1 + order.length) % order.length, side: 'b' },
     ]
   })
 
@@ -67,9 +142,18 @@ export function enterWriting(state: RoomState, ctx: Ctx, effects: Effect[]): voi
   effects.push({ kind: 'sound', cue: 'start' })
 }
 
-/** True once every side of every matchup has an answer in it. */
+/** True once every answer the round is waiting on has arrived. */
 export function writingComplete(state: RoomState): boolean {
+  if (state.finale) return state.finale.entries.every((e) => e.submitted)
   return state.matchups.every((m) => m.a.submitted && m.b.submitted)
+}
+
+/** A pathetic line nobody has had yet this game. */
+function nextFallback(state: RoomState, ctx: Ctx): string {
+  const unused = ctx.fallbacks.filter((f) => !state.usedFallbacks.includes(f))
+  const line = pick(state, unused.length > 0 ? unused : ctx.fallbacks) ?? '(nothing)'
+  state.usedFallbacks.push(line)
+  return line
 }
 
 /**
@@ -77,14 +161,21 @@ export function writingComplete(state: RoomState): boolean {
  * filled from `content/fallbacks.yaml` — and that answer competes for real.
  */
 export function fillFallbacks(state: RoomState, ctx: Ctx): void {
+  if (state.finale) {
+    for (const entry of state.finale.entries) {
+      if (entry.submitted) continue
+      entry.text = nextFallback(state, ctx)
+      entry.submitted = true
+      entry.fallback = true
+    }
+    return
+  }
+
   for (const matchup of state.matchups) {
     for (const side of ['a', 'b'] as const) {
       const answer = matchup[side]
       if (answer.submitted) continue
-      const unused = ctx.fallbacks.filter((f) => !state.usedFallbacks.includes(f))
-      const line = pick(state, unused.length > 0 ? unused : ctx.fallbacks) ?? '(nothing)'
-      state.usedFallbacks.push(line)
-      answer.text = line
+      answer.text = nextFallback(state, ctx)
       answer.submitted = true
       answer.fallback = true
     }
@@ -143,13 +234,24 @@ export function enterWinner(state: RoomState, _ctx: Ctx, effects: Effect[]): voi
   effects.push({ kind: 'sound', cue: 'winner' })
 }
 
-/** After a scoreboard: another round, or the end. */
+/**
+ * Open the next round, whichever kind it is. The only place that decides
+ * between a normal round and the finale, so starting a game and finishing a
+ * scoreboard cannot disagree about it.
+ */
+export function beginNextRound(state: RoomState, ctx: Ctx, effects: Effect[]): void {
+  if (state.round + 1 === state.config.finaleRound) enterFinaleWriting(state, ctx, effects)
+  else enterWriting(state, ctx, effects)
+}
+
+/** After a scoreboard: another round, the finale, or the end. */
 export function advanceAfterScoreboard(state: RoomState, ctx: Ctx, effects: Effect[]): void {
-  if (state.round < state.config.roundCount && writers(state).length >= state.config.minPlayers) {
-    enterWriting(state, ctx, effects)
-  } else {
+  const roomStillViable = writers(state).length >= state.config.minPlayers
+  if (state.round >= state.config.roundCount || !roomStillViable) {
     enterWinner(state, ctx, effects)
+    return
   }
+  beginNextRound(state, ctx, effects)
 }
 
 export { arm, disarm, isSweep, tally }

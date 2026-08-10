@@ -1,7 +1,7 @@
 import type { ClientView, PhaseView, ScoreRow, SeatId, SeatView, Side } from '@ud/protocol'
-import { outcome, tally } from './scoring.ts'
-import type { Matchup, RoomState, Seat } from './state.ts'
-import { eligibleVoters, seat, writers } from './state.ts'
+import { finaleTally, outcome, tally } from './scoring.ts'
+import type { Assignment, Matchup, RoomState, Seat } from './state.ts'
+import { eligibleVoters, finaleVoters, seat, votesSpent, writers } from './state.ts'
 
 /**
  * Turn room state into the one thing a given viewer is allowed to see.
@@ -65,6 +65,12 @@ function phaseView(state: RoomState, viewer: Seat | null): PhaseView {
     case 'reveal':
       return revealView(state)
 
+    case 'finaleVoting':
+      return finaleVotingView(state, viewer)
+
+    case 'finaleReveal':
+      return finaleRevealView(state)
+
     case 'scoreboard':
       return {
         name: 'scoreboard',
@@ -89,22 +95,40 @@ function phaseView(state: RoomState, viewer: Seat | null): PhaseView {
   }
 }
 
+/** Has this seat answered the prompt this assignment points at? */
+function assignmentDone(state: RoomState, seatId: SeatId, assignment: Assignment): boolean {
+  if (assignment.kind === 'finale') {
+    return state.finale?.entries.find((e) => e.seatId === seatId)?.submitted ?? false
+  }
+  return state.matchups[assignment.matchupIndex]?.[assignment.side]?.submitted ?? false
+}
+
+function promptOf(state: RoomState, assignment: Assignment): string | null {
+  if (assignment.kind === 'finale') return state.finale?.promptText ?? null
+  return state.matchups[assignment.matchupIndex]?.promptText ?? null
+}
+
 function writingView(state: RoomState, viewer: Seat | null): PhaseView {
   const progress = writers(state).map((w) => {
     const list = state.assignments[w.id] ?? []
-    const done = list.filter((a) => state.matchups[a.matchupIndex]?.[a.side]?.submitted).length
-    return { seatId: w.id, done, of: list.length }
+    return {
+      seatId: w.id,
+      done: list.filter((a) => assignmentDone(state, w.id, a)).length,
+      of: list.length,
+    }
   })
 
-  // Only ever the viewer's own prompt, and only the one they are still on.
+  // Only ever the viewer's own prompt, and only the one they are still on. In
+  // the finale everybody has the same one, so there is nothing to hide — but
+  // the code path is identical either way.
   let assignment: { slot: number; of: number; promptText: string } | null = null
   if (viewer) {
     const list = state.assignments[viewer.id] ?? []
     for (let slot = 0; slot < list.length; slot++) {
       const a = list[slot]!
-      const matchup = state.matchups[a.matchupIndex]
-      if (matchup && !matchup[a.side].submitted) {
-        assignment = { slot, of: list.length, promptText: matchup.promptText }
+      const promptText = promptOf(state, a)
+      if (promptText && !assignmentDone(state, viewer.id, a)) {
+        assignment = { slot, of: list.length, promptText }
         break
       }
     }
@@ -112,10 +136,75 @@ function writingView(state: RoomState, viewer: Seat | null): PhaseView {
 
   return {
     name: 'writing',
+    isFinale: state.finale !== null,
     assignment,
     progress,
     submittedCount: progress.filter((p) => p.done === p.of).length,
     writerCount: progress.length,
+  }
+}
+
+function finaleVotingView(state: RoomState, viewer: Seat | null): PhaseView {
+  const finale = state.finale
+  if (!finale) throw new Error('finale voting with no finale')
+
+  const totals = finaleTally(finale)
+  const yourSpread = viewer ? (finale.votes[viewer.id] ?? {}) : {}
+  const spent = viewer ? votesSpent(finale, viewer.id) : 0
+
+  const entries = finale.entries.map((entry) => ({
+    // The entry is keyed by its author's seat because that is what makes it
+    // unique — but nothing here says *whose* it is, and `authorName` does not
+    // exist on this type. The client cannot render what it was not sent.
+    id: entry.seatId,
+    text: entry.text,
+    votes: totals[entry.seatId] ?? 0,
+    isYours: viewer?.id === entry.seatId,
+    yourVotes: yourSpread[entry.seatId] ?? 0,
+  }))
+
+  const voters = finaleVoters(state)
+  return {
+    name: 'finaleVoting',
+    promptText: finale.promptText,
+    entries,
+    votesPerVoter: state.config.votesPerFinaleVoter,
+    votesLeft: viewer ? Math.max(0, state.config.votesPerFinaleVoter - spent) : 0,
+    votesIn: Object.values(totals).reduce((sum, n) => sum + n, 0),
+    votesPossible: voters.length * state.config.votesPerFinaleVoter,
+  }
+}
+
+function finaleRevealView(state: RoomState): PhaseView {
+  const finale = state.finale
+  if (!finale) throw new Error('finale reveal with no finale')
+
+  const totals = finaleTally(finale)
+  const best = Math.max(0, ...finale.entries.map((e) => totals[e.seatId] ?? 0))
+
+  return {
+    name: 'finaleReveal',
+    promptText: finale.promptText,
+    entries: finale.entries
+      .map((entry) => {
+        const author = seat(state, entry.seatId)
+        const votes = totals[entry.seatId] ?? 0
+        return {
+          seatId: entry.seatId,
+          authorName: author?.name ?? 'someone',
+          color: author?.color ?? ('sage' as const),
+          shape: author?.shape ?? ('pebble' as const),
+          text: entry.text,
+          votes,
+          points: entry.points,
+          fallback: entry.fallback,
+          won: best > 0 && votes === best,
+        }
+      })
+      .sort((a, b) => b.votes - a.votes),
+    winnerSeatId:
+      finale.entries.find((e) => (totals[e.seatId] ?? 0) === best && best > 0)?.seatId ?? null,
+    sweep: finale.sweptBy !== null,
   }
 }
 

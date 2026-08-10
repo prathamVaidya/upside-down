@@ -24,10 +24,20 @@ export type PhaseSample = {
   seats: { seatId: SeatId; view: ClientView }[]
 }
 
-/** Play a whole game, sampling every phase exactly once. */
-export function samplePhases(playerCount = 4): PhaseSample[] {
+/**
+ * Play a whole game, sampling every phase exactly once.
+ *
+ * `finale` swaps the single head-to-head round for a finale, so the same driver
+ * produces fixtures for both shapes of round without the screens having to
+ * agree on hand-written state.
+ */
+export function samplePhases(playerCount = 4, finale = false): PhaseSample[] {
   let now = 1_000_000
-  let state: RoomState = createRoom('MINT', now, 4242, { ...DEFAULT_CONFIG, roundCount: 1 })
+  let state: RoomState = createRoom('MINT', now, 4242, {
+    ...DEFAULT_CONFIG,
+    roundCount: 1,
+    finaleRound: finale ? 1 : null,
+  })
   const timers: { at: number; event: Event }[] = []
   const samples: PhaseSample[] = []
   const seen = new Set<string>()
@@ -89,6 +99,23 @@ export function samplePhases(playerCount = 4): PhaseSample[] {
       for (const s of state.seats) {
         if (s.id !== m.a.seatId && s.id !== m.b.seatId) {
           dispatch({ type: 'vote.cast', seatId: s.id, side: 'a' })
+        }
+      }
+    }
+
+    if (state.phase === 'finaleVoting') {
+      // Concentrate the votes on the first few answers.
+      //
+      // Round-robin looks fairer but at eight voters with three votes each it
+      // lands on a perfect eight-way tie, and a fixture where nobody loses
+      // cannot exercise the losing half of the reveal.
+      const entries = state.finale!.entries
+      for (const [i, voter] of state.seats.entries()) {
+        const targets = entries.filter((e) => e.seatId !== voter.id)
+        const target = targets[i % Math.min(3, targets.length)]
+        if (!target) continue
+        for (let v = 0; v < state.config.votesPerFinaleVoter; v++) {
+          dispatch({ type: 'finale.vote', seatId: voter.id, entrySeatId: target.seatId, delta: 1 })
         }
       }
     }

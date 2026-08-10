@@ -30,6 +30,12 @@ export type Event =
   | { type: 'game.start'; seatId: SeatId }
   | { type: 'answer.submit'; seatId: SeatId; slot: number; text: string }
   | { type: 'vote.cast'; seatId: SeatId; side: Side }
+  /**
+   * One step of a finale ballot. Votes go on and come off until the clock
+   * stops, because mockup 2l gives each row a minus as well as a plus — the
+   * "no takebacks" rule belongs to the head-to-head round, not this one.
+   */
+  | { type: 'finale.vote'; seatId: SeatId; entrySeatId: SeatId; delta: 1 | -1 }
   /** A phase clock ran out. `token` is checked against `state.timerToken`. */
   | { type: 'deadline'; token: number }
   /** Fires `hostGraceMs` after a host drops; a no-op if they came back. */

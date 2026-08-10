@@ -26,6 +26,11 @@ export function Write({
 
   return (
     <Composer
+      label={
+        phase.isFinale
+          ? 'the finale · everyone gets this one'
+          : `prompt ${assignment.slot + 1} of ${assignment.of}`
+      }
       // A fresh box for each prompt. Keying the component is how React resets
       // state on a changed input — an effect that clears the text would fight
       // whatever the player typed in the frame the second prompt arrived.
@@ -40,11 +45,13 @@ export function Write({
 
 function Composer({
   assignment,
+  label,
   endsAt,
   offsetMs,
   onSubmit,
 }: {
   assignment: { slot: number; of: number; promptText: string }
+  label: string
   endsAt: number | null
   offsetMs: number
   onSubmit: (slot: number, text: string) => void
@@ -55,9 +62,7 @@ function Composer({
   return (
     <div className="phone">
       <div className="phone__top">
-        <div className="phone__label">
-          prompt {assignment.slot + 1} of {assignment.of}
-        </div>
+        <div className="phone__label">{label}</div>
         <Countdown endsAt={endsAt} offsetMs={offsetMs} word="to write" />
       </div>
 

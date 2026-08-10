@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { project } from '../src/project.ts'
-import { lobbyOf } from './harness.ts'
+import { finaleLobbyOf, lobbyOf } from './harness.ts'
 
 describe('projection redaction', () => {
   it('never leaks authorship before a matchup is revealed', () => {
@@ -110,6 +110,46 @@ describe('projection redaction', () => {
       expect(view.phase.youMayVote).toBe(!isAuthor)
       expect(view.phase.yourSide !== null).toBe(isAuthor)
     }
+  })
+
+  it('never names an author during the finale ballot', () => {
+    const g = finaleLobbyOf(6)
+    g.dispatch({ type: 'game.start', seatId: g.host })
+    g.everyoneWrites()
+    expect(g.state.phase).toBe('finaleVoting')
+
+    // Everyone spends a vote, so the payload carries live counts too.
+    for (const s of g.state.seats) {
+      const target = g.state.finale!.entries.find((e) => e.seatId !== s.id)!
+      g.finaleVote(s.id, target.seatId, 1)
+    }
+
+    for (const viewer of [null, ...g.state.seats.map((s) => s.id)]) {
+      const wire = JSON.stringify(project(g.state, viewer, g.now).phase)
+      for (const s of g.state.seats) {
+        expect(wire).not.toContain(`"authorName":"${s.name}"`)
+      }
+      // Entry ids are seat ids — that is unavoidable, they have to be votable —
+      // but nothing pairs an id with a name until the reveal.
+      expect(wire).not.toContain('authorName')
+    }
+  })
+
+  it('does not tell a finale voter how anybody else spent their votes', () => {
+    const g = finaleLobbyOf(5)
+    g.dispatch({ type: 'game.start', seatId: g.host })
+    g.everyoneWrites()
+
+    const [voter, other] = g.state.seats
+    const target = g.state.finale!.entries.find((e) => e.seatId !== voter!.id)!
+    g.finaleVote(voter!.id, target.seatId, 3)
+
+    const view = project(g.state, other!.id, g.now)
+    if (view.phase.name !== 'finaleVoting') throw new Error('expected finaleVoting')
+    // They see the total on the entry, and their own allocation — nobody else's.
+    expect(view.phase.entries.find((e) => e.id === target.seatId)?.votes).toBe(3)
+    expect(view.phase.entries.every((e) => e.yourVotes === 0)).toBe(true)
+    expect(view.phase.votesLeft).toBe(3)
   })
 
   it('reveals authorship once, and only once, the reveal starts', () => {

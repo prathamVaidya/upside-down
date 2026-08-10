@@ -2,16 +2,20 @@ import type { SeatId } from '@ud/protocol'
 import type { Ctx } from './ctx.ts'
 import type { Effect, Event } from './events.ts'
 import type { RoomState, Seat } from './state.ts'
-import { identityFor, players, seat, writers } from './state.ts'
+import { identityFor, players, seat, votesSpent, writers } from './state.ts'
 import {
   advanceAfterReveal,
   advanceAfterScoreboard,
   arm,
+  beginNextRound,
   currentMatchup,
+  enterFinaleReveal,
+  enterFinaleVoting,
   enterReveal,
   enterVoting,
-  enterWriting,
+  enterWinner,
   fillFallbacks,
+  finaleVotingComplete,
   votingComplete,
   writingComplete,
 } from './transitions.ts'
@@ -66,6 +70,9 @@ function apply(state: RoomState, event: Event, ctx: Ctx, effects: Effect[]): voi
       break
     case 'vote.cast':
       onVote(state, event, ctx, effects)
+      break
+    case 'finale.vote':
+      onFinaleVote(state, event, ctx, effects)
       break
     case 'deadline':
       onDeadline(state, event, ctx, effects)
@@ -154,6 +161,9 @@ function onDisconnect(
       arm(state, effects, ctx.now + state.config.settleMs)
     }
   }
+  if (state.phase === 'finaleVoting' && finaleVotingComplete(state)) {
+    arm(state, effects, ctx.now + state.config.settleMs)
+  }
 }
 
 function onHostCheck(
@@ -218,7 +228,7 @@ function onStart(
     return
   }
   state.settingsOpen = false
-  enterWriting(state, ctx, effects)
+  beginNextRound(state, ctx, effects)
 }
 
 function onSubmit(
@@ -238,7 +248,11 @@ function onSubmit(
     return
   }
 
-  const answer = state.matchups[assignment.matchupIndex]?.[assignment.side]
+  const answer =
+    assignment.kind === 'finale'
+      ? state.finale?.entries.find((e) => e.seatId === event.seatId)
+      : state.matchups[assignment.matchupIndex]?.[assignment.side]
+
   if (!answer || answer.seatId !== event.seatId) return
   if (answer.submitted) return
 
@@ -247,7 +261,10 @@ function onSubmit(
   effects.push({ kind: 'sound', cue: 'submit' })
 
   // Everyone finished early — no reason to make the room watch a dead clock.
-  if (writingComplete(state)) enterVoting(state, ctx, effects, 0)
+  if (writingComplete(state)) {
+    if (state.finale) enterFinaleVoting(state, ctx, effects)
+    else enterVoting(state, ctx, effects, 0)
+  }
 }
 
 function onVote(
@@ -275,6 +292,42 @@ function onVote(
   }
 }
 
+function onFinaleVote(
+  state: RoomState,
+  event: Extract<Event, { type: 'finale.vote' }>,
+  ctx: Ctx,
+  effects: Effect[],
+): void {
+  if (state.phase !== 'finaleVoting') return
+  const finale = state.finale
+  if (!finale) return
+
+  const voter = seat(state, event.seatId)
+  if (!voter?.connected) return
+  // You cannot vote for yourself — mockup 2l keeps your own answer off the list
+  // entirely, and the projection does the same, but never trust the client.
+  if (voter.id === event.entrySeatId) return
+  if (!finale.entries.some((e) => e.seatId === event.entrySeatId)) return
+
+  finale.votes[voter.id] ??= {}
+  const spread = finale.votes[voter.id]!
+  const current = spread[event.entrySeatId] ?? 0
+
+  if (event.delta === 1) {
+    if (votesSpent(finale, voter.id) >= state.config.votesPerFinaleVoter) return
+    spread[event.entrySeatId] = current + 1
+    effects.push({ kind: 'sound', cue: 'vote-land' })
+  } else {
+    if (current <= 0) return
+    if (current === 1) delete spread[event.entrySeatId]
+    else spread[event.entrySeatId] = current - 1
+  }
+
+  if (finaleVotingComplete(state)) {
+    arm(state, effects, ctx.now + state.config.settleMs)
+  }
+}
+
 function onDeadline(
   state: RoomState,
   event: Extract<Event, { type: 'deadline' }>,
@@ -287,13 +340,22 @@ function onDeadline(
   switch (state.phase) {
     case 'writing':
       fillFallbacks(state, ctx)
-      enterVoting(state, ctx, effects, 0)
+      if (state.finale) enterFinaleVoting(state, ctx, effects)
+      else enterVoting(state, ctx, effects, 0)
       break
     case 'voting':
       enterReveal(state, ctx, effects)
       break
     case 'reveal':
       advanceAfterReveal(state, ctx, effects)
+      break
+    case 'finaleVoting':
+      enterFinaleReveal(state, ctx, effects)
+      break
+    case 'finaleReveal':
+      // The finale is always the last round, so its reveal runs straight into
+      // the winner rather than another scoreboard.
+      enterWinner(state, ctx, effects)
       break
     case 'scoreboard':
       advanceAfterScoreboard(state, ctx, effects)

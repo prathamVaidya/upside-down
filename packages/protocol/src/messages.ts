@@ -31,6 +31,11 @@ export type ClientMsg =
    */
   | { t: 'answer.submit'; slot: number; text: string }
   | { t: 'vote.cast'; side: Side }
+  /**
+   * One step of a finale ballot. `entrySeatId` is the entry's id from
+   * `FinaleEntryView`, which the server only reveals as an author later.
+   */
+  | { t: 'finale.vote'; entrySeatId: SeatId; delta: 1 | -1 }
   | { t: 'ping'; t0: number }
 
 export type ErrorCode =

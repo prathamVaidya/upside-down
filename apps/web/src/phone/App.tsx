@@ -2,6 +2,7 @@ import { ClayButton, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
 import type { Side } from '@ud/protocol'
 import { Dropped } from './screens/Dropped.tsx'
+import { FinaleVote } from './screens/FinaleVote.tsx'
 import { Join } from './screens/Join.tsx'
 import { Lobby } from './screens/Lobby.tsx'
 import { Vote } from './screens/Vote.tsx'
@@ -91,7 +92,18 @@ export function App() {
         />
       )
 
+    case 'finaleVoting':
+      return (
+        <FinaleVote
+          view={view}
+          phase={phase}
+          offsetMs={offsetMs}
+          onVote={(entrySeatId, delta) => client.send({ t: 'finale.vote', entrySeatId, delta })}
+        />
+      )
+
     case 'reveal':
+    case 'finaleReveal':
       return <Waiting view={view} line="Look up" sub="this is the good bit" />
 
     case 'scoreboard':

@@ -100,9 +100,12 @@ The design brief and the mockups it was built from are in [`design/`](./design).
 
 ## Status
 
-Milestone 1: lobby → write → vote → reveal → scoreboard → winner, over real sockets, with server
-timers, per-recipient redaction, and reconnection. Coming next: three rounds and the finale (M2),
-regions and the setup screen (M3), the remaining screens at full fidelity (M4).
+The full game loop runs: three rounds over real sockets, with server timers, per-recipient
+redaction and reconnection. Rounds 1 and 2 are head-to-head; round 3 is the finale — one prompt
+for the room, every answer on screen, three votes each to spread around.
+
+Coming next: regions and the room-setup screen (M3), then the remaining screens and states at full
+fidelity plus sound (M4).
 
 ## Licence
 

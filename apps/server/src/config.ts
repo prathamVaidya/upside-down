@@ -20,10 +20,15 @@ export function configFromEnv(): EngineConfig {
     ...DEFAULT_CONFIG,
     roundCount: num('UD_ROUNDS', DEFAULT_CONFIG.roundCount),
     minPlayers: num('UD_MIN_PLAYERS', DEFAULT_CONFIG.minPlayers),
+    // The finale is always the last round, however many there are.
+    finaleRound:
+      process.env.UD_NO_FINALE === '1' ? null : num('UD_ROUNDS', DEFAULT_CONFIG.roundCount),
     ...(fast
       ? {
           writingMs: 2_000,
           votingMs: 1_500,
+          finaleVotingMs: 2_500,
+          finaleRevealMs: 400,
           revealMs: 250,
           sweepRevealMs: 350,
           scoreboardMs: 300,

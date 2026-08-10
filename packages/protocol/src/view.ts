@@ -46,6 +46,8 @@ export type PhaseView =
   | VotingView
   | RevealView
   | ScoreboardView
+  | FinaleVotingView
+  | FinaleRevealView
   | WinnerView
 
 export type LobbyView = {
@@ -61,6 +63,8 @@ export type LobbyView = {
 
 export type WritingView = {
   name: 'writing'
+  /** The finale deals one prompt to everybody instead of two each. */
+  isFinale: boolean
   /**
    * The prompt this viewer is currently on. Null once they've finished both, or
    * always null for the stage and the audience. Nobody ever receives another
@@ -109,6 +113,56 @@ export type RevealSide = {
   authorName: string
   /** Auto-filled because they submitted nothing. It can still win (mockup 2n). */
   fallback: boolean
+}
+
+/**
+ * The finale ballot: one prompt, every answer on screen at once, and three
+ * votes to spread across them however you like.
+ *
+ * The hardest layout in the game — it has to stay readable at eight answers on
+ * a television and be operable one-handed on a phone.
+ */
+export type FinaleVotingView = {
+  name: 'finaleVoting'
+  promptText: string
+  /** No authors. Anonymous until the reveal, exactly like a matchup. */
+  entries: FinaleEntryView[]
+  votesPerVoter: number
+  /** How many the viewer has left to spend. Zero for the stage. */
+  votesLeft: number
+  votesIn: number
+  votesPossible: number
+}
+
+export type FinaleEntryView = {
+  /** Identifies the entry for voting. Not revealed as its author until later. */
+  id: SeatId
+  text: string
+  votes: number
+  /** Set for the viewer's own answer, which is kept off their ballot. */
+  isYours: boolean
+  /** How many of the viewer's own votes are sitting on this one. */
+  yourVotes: number
+}
+
+export type FinaleRevealView = {
+  name: 'finaleReveal'
+  promptText: string
+  entries: FinaleRevealEntry[]
+  winnerSeatId: SeatId | null
+  sweep: boolean
+}
+
+export type FinaleRevealEntry = {
+  seatId: SeatId
+  authorName: string
+  color: ColorRole
+  shape: ShapeId
+  text: string
+  votes: number
+  points: number
+  fallback: boolean
+  won: boolean
 }
 
 export type ScoreboardView = {

@@ -12,7 +12,15 @@ import { COLOR_ROLES, SHAPE_IDS } from '@ud/protocol'
 import type { EngineConfig } from './config.ts'
 import { DEFAULT_CONFIG } from './config.ts'
 
-export type Phase = 'lobby' | 'writing' | 'voting' | 'reveal' | 'scoreboard' | 'winner'
+export type Phase =
+  | 'lobby'
+  | 'writing'
+  | 'voting'
+  | 'reveal'
+  | 'scoreboard'
+  | 'finaleVoting'
+  | 'finaleReveal'
+  | 'winner'
 
 export type Seat = {
   id: SeatId
@@ -50,8 +58,33 @@ export type Matchup = {
   revealed: boolean
 }
 
-/** Where one of a player's two prompts lives in the matchup list. */
-export type Assignment = { matchupIndex: number; side: Side }
+/**
+ * Where one of a player's prompts lives.
+ *
+ * Normal rounds put each writer on two edges of the matchup cycle. The finale
+ * gives everybody the same single prompt, so it needs no coordinates — but it
+ * still travels through the same `assignments` map, which is what lets the
+ * phone's writing screen stay identical in both.
+ */
+export type Assignment = { kind: 'matchup'; matchupIndex: number; side: Side } | { kind: 'finale' }
+
+/** One player's answer to the finale prompt. */
+export type FinaleEntry = {
+  seatId: SeatId
+  text: string
+  submitted: boolean
+  fallback: boolean
+  points: number
+}
+
+export type Finale = {
+  promptId: string
+  promptText: string
+  entries: FinaleEntry[]
+  /** voter → (entry author → how many of their votes landed there). */
+  votes: Record<SeatId, Record<SeatId, number>>
+  sweptBy: SeatId | null
+}
 
 export type RoomState = {
   code: RoomCode
@@ -79,6 +112,8 @@ export type RoomState = {
   matchups: Matchup[]
   matchupIndex: number
   assignments: Record<SeatId, Assignment[]>
+  /** Set when the finale round starts; null for every normal round. */
+  finale: Finale | null
 
   /** Prompt ids already spent this game, so a round never repeats one. */
   usedPromptIds: string[]
@@ -112,6 +147,7 @@ export function createRoom(
     matchups: [],
     matchupIndex: 0,
     assignments: {},
+    finale: null,
     usedPromptIds: [],
     pastPairs: [],
     usedFallbacks: [],
@@ -153,4 +189,18 @@ export function eligibleVoters(state: RoomState, matchup: Matchup): Seat[] {
   return state.seats.filter(
     (s) => s.connected && s.id !== matchup.a.seatId && s.id !== matchup.b.seatId,
   )
+}
+
+/**
+ * Everyone entitled to vote in the finale: every connected seat. Authors are
+ * not excluded here the way they are in a matchup — they simply cannot spend
+ * votes on themselves, which the reducer enforces per vote.
+ */
+export function finaleVoters(state: RoomState): Seat[] {
+  return state.seats.filter((s) => s.connected)
+}
+
+/** How many of their finale votes this seat has already spent. */
+export function votesSpent(finale: Finale, seatId: SeatId): number {
+  return Object.values(finale.votes[seatId] ?? {}).reduce((sum, n) => sum + n, 0)
 }

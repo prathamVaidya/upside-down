@@ -22,8 +22,14 @@ export function Writing({
 
   return (
     <>
-      <h1 className="stage__title">Everyone is writing</h1>
-      <p className="stage__sub">no reading over shoulders. we'll know.</p>
+      <h1 className="stage__title">
+        {phase.isFinale ? 'One prompt. Everyone.' : 'Everyone is writing'}
+      </h1>
+      <p className="stage__sub">
+        {phase.isFinale
+          ? 'same question for the whole room. no hiding behind a matchup.'
+          : "no reading over shoulders. we'll know."}
+      </p>
 
       <div className="stage__corner">
         <Countdown endsAt={view.phaseEndsAt} offsetMs={offsetMs} word="to write" size="large" />

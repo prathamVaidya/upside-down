@@ -78,8 +78,8 @@ upside-down/
 │   └── web/                  Vite, two HTML entry points, one bundle graph
 │       ├── index.html            the phone
 │       ├── stage/index.html      the television
-│       ├── src/stage/screens/{Idle,Writing,Voting,Reveal,Scoreboard,Winner}.tsx
-│       └── src/phone/screens/{Join,Lobby,Write,Vote,Waiting,Dropped}.tsx
+│       ├── src/stage/screens/{Idle,Writing,Voting,Reveal,Finale,Scoreboard,Winner}.tsx
+│       └── src/phone/screens/{Join,Lobby,Write,Vote,FinaleVote,Waiting,Dropped}.tsx
 │
 └── tools/
     └── botgame/              headless N-bot full-game runner, plus the fuzzer
@@ -200,15 +200,27 @@ This is the decision everything else leans on, and it buys three specific things
 
 ```
 lobby ──▶ writing ──▶ voting[i] ──▶ reveal[i] ──┐
-  ▲                      ▲                      │  more matchups
-  │                      └──────────────────────┘
-  │                                             ▼
-  └── (setup overlay, host-driven)         scoreboard ──▶ next round
-                                                │
-                    round 3 = finale: one prompt, n answers, 3 votes each
-                                                ▼
-                                             winner
+  ▲          │           ▲                      │  more matchups
+  │          │           └──────────────────────┘
+  │          │                                  ▼
+  │          │                             scoreboard ──▶ next round
+  │          │                                  │
+  └── setup  └──(finale)──▶ finaleVoting ──▶ finaleReveal ──▶ winner
 ```
+
+Rounds 1 and 2 are head-to-head. Round 3 is the finale: one prompt for
+everybody, every answer on screen at once, and three votes per voter to spread
+across them. It rides the same `writing` phase and the same `assignments` map as
+a normal round — the phone's writing screen cannot tell the difference, it just
+receives one prompt instead of two — and then diverges into its own ballot and
+its own reveal, which runs straight into the winner rather than another
+scoreboard.
+
+Two rules the finale does *not* share with a matchup: you cannot vote for your
+own answer (it is absent from your ballot entirely, and the reducer refuses it
+anyway), and votes come off as easily as they go on, because mockup 2l gives
+every row a minus as well as a plus. "No takebacks" belongs to the head-to-head
+round.
 
 Setup is not a separate phase. `settings` is editable by the host during `lobby`, and when the
 host opens the picker the stage renders screen `2a` live — the mockup copy is literally
@@ -407,7 +419,8 @@ has submitted.
 - **M1 — vertical slice.** ✅ Lobby → write → vote → reveal → scoreboard → winner. One round, one
   deck, no regions. Server timers, per-recipient redaction, reconnect, bot game in CI. The round
   loop is written for N rounds and tested at three; only the finale phase is missing.
-- **M2 — full game.** Three rounds, the finale, scoring config, sweep, winner.
+- **M2 — full game.** ✅ Three rounds, the finale with its own ballot and reveal, scoring config,
+  sweep, winner.
 - **M3 — content.** Regions, levels, the setup screen, fallbacks, CI lint.
 - **M4 — polish.** All 17 screens to mockup fidelity, Doug's pose set, sound, reduced motion, edge
   states.
@@ -423,9 +436,18 @@ Flagged, not blocking. M1 does not depend on any of them.
    accessibility floor also forbids meaning carried by colour alone. Proposal: give each seat a
    distinct clay *silhouette* as a second identity dimension, so 4 colours × shapes covers 8 and
    satisfies the floor at the same time. Needs a design call.
-2. **Scoring numbers disagree between mockups.** `2c` shows +1200/+800/+400/+0; `1e` shows 4 votes
-   → +800. They are illustrative. Scoring goes in a tunable config file and needs real play to
-   settle.
+2. **How much should the finale be worth?** The mockups disagree with each other on scoring — `2c`
+   shows +1200/+800/+400/+0, `1e` shows four votes paying +800 — so everything lives in
+   `EngineConfig` and the finale's rate is *derived* rather than fixed (see `finalePointsPerVote`,
+   and the note there on why a flat rate made the finale worth 25% of the game at eight players
+   and 79% at three).
+
+   With that fixed, multipliers of 1:2:3 put the finale at 50% of the game by construction, and
+   bot games measure a mean swing of 49% / 38% / 66% at three, five and eight players — the spread
+   is variance plus the fact that the winner is usually whoever won the finale, not a remaining
+   scaling bug. Whether half the game is the *right* weight for a "triple stakes" round is a play
+   question, not an arithmetic one. The lever is `roundMultipliers`: dropping the finale to `2`
+   would put it at 40%.
 3. **Audience vote weight.** The audience is unlimited and can swamp 8 players. Does a "clean
    sweep" mean all voters, or all player-voters? Affects the biggest beat in the game.
 4. **Deploys drop live rooms.** True on any runtime without persist-and-rehydrate. "Don't deploy

@@ -45,6 +45,11 @@ export const ClientMsgSchema = z.discriminatedUnion('t', [
     text: z.string().max(ANSWER_MAX),
   }),
   z.object({ t: z.literal('vote.cast'), side }),
+  z.object({
+    t: z.literal('finale.vote'),
+    entrySeatId: z.string().min(8).max(64),
+    delta: z.union([z.literal(1), z.literal(-1)]),
+  }),
   z.object({ t: z.literal('ping'), t0: z.number() }),
 ])
 

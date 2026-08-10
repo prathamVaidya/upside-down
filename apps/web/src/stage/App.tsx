@@ -1,5 +1,6 @@
 import { Doug, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
+import { FinaleReveal, FinaleVoting } from './screens/Finale.tsx'
 import { Idle } from './screens/Idle.tsx'
 import { Reveal } from './screens/Reveal.tsx'
 import { Scoreboard } from './screens/Scoreboard.tsx'
@@ -62,6 +63,10 @@ export function App() {
       {phase.name === 'writing' && <Writing view={view} phase={phase} offsetMs={offsetMs} />}
       {phase.name === 'voting' && <Voting view={view} phase={phase} offsetMs={offsetMs} />}
       {phase.name === 'reveal' && <Reveal view={view} phase={phase} />}
+      {phase.name === 'finaleVoting' && (
+        <FinaleVoting view={view} phase={phase} offsetMs={offsetMs} />
+      )}
+      {phase.name === 'finaleReveal' && <FinaleReveal view={view} phase={phase} />}
       {phase.name === 'scoreboard' && <Scoreboard view={view} phase={phase} />}
       {phase.name === 'winner' && <Winner view={view} phase={phase} />}
     </div>

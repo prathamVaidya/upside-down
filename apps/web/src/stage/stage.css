@@ -200,6 +200,41 @@
   font-family: var(--ud-stage-font);
 }
 
+/*
+ * The finale grid: up to eight answers at once.
+ *
+ * Sized so a card never drops below readable at three metres — the column count
+ * comes down as the answers get fewer rather than the cards getting bigger, and
+ * the whole grid is capped so it cannot sprawl on an ultrawide.
+ */
+.finale-grid {
+  display: grid;
+  gap: clamp(8px, 1.4vmin, 20px);
+  width: min(1500px, 94vw);
+  margin-top: clamp(8px, 1.6vmin, 22px);
+}
+
+.finale-card {
+  padding: clamp(10px, 1.6vmin, 20px);
+  min-height: clamp(78px, 13vmin, 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.finale-card__text {
+  font-family: var(--ud-stage-font);
+  font-weight: 500;
+  font-size: clamp(13px, 1.9vmin, 26px);
+  line-height: 1.28;
+  /* Long answers clamp rather than pushing the grid out of shape. */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .confetti {
   position: absolute;
   top: -20px;

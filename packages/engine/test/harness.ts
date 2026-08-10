@@ -30,8 +30,18 @@ export class Game {
   sounds: string[] = []
   rejects: { seatId: SeatId; code: string; message: string }[] = []
 
+  /**
+   * Defaults to a single head-to-head round. The product ships three rounds
+   * ending in a finale, but most of these tests are about one transition and
+   * say so by opting into more.
+   */
   constructor(config: Partial<EngineConfig> = {}, seed = 42) {
-    this.state = createRoom('TEST', this.now, seed, { ...DEFAULT_CONFIG, ...config })
+    this.state = createRoom('TEST', this.now, seed, {
+      ...DEFAULT_CONFIG,
+      roundCount: 1,
+      finaleRound: null,
+      ...config,
+    })
   }
 
   private ctx(): Ctx {
@@ -118,6 +128,29 @@ export class Game {
     })
     return this
   }
+
+  /** Spend `count` finale votes on one entry. */
+  finaleVote(seatId: SeatId, entrySeatId: SeatId, count = 1): this {
+    for (let i = 0; i < count; i++) {
+      this.dispatch({ type: 'finale.vote', seatId, entrySeatId, delta: 1 })
+    }
+    return this
+  }
+
+  /**
+   * Everybody spends every finale vote on the first entry that is not theirs,
+   * which concentrates them enough to make scoring assertions readable.
+   */
+  everyoneSpendsFinaleVotes(): this {
+    const finale = this.state.finale
+    if (!finale) throw new Error('no finale')
+    for (const voter of this.state.seats.filter((s) => s.connected)) {
+      const target = finale.entries.find((e) => e.seatId !== voter.id)
+      if (!target) continue
+      this.finaleVote(voter.id, target.seatId, this.state.config.votesPerFinaleVoter)
+    }
+    return this
+  }
 }
 
 /** Lobby with `n` players, host is the first. */
@@ -126,4 +159,9 @@ export function lobbyOf(n: number, config: Partial<EngineConfig> = {}): Game {
   const names = ['Priya', 'Tom', 'Ansh', 'Lena', 'Mo', 'Kit', 'Rae', 'Sol']
   for (let i = 0; i < n; i++) g.join(names[i]!)
   return g
+}
+
+/** A lobby that goes straight into the finale as round 1. */
+export function finaleLobbyOf(n: number): Game {
+  return lobbyOf(n, { roundCount: 1, finaleRound: 1 })
 }
