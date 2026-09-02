@@ -1,5 +1,6 @@
 import { Blob, Clay, Doug, Wordmark } from '@ud/clay'
 import type { ClientView, LobbyView } from '@ud/protocol'
+import { Qr } from '../Qr.tsx'
 
 /**
  * The screen this product is judged on.
@@ -12,6 +13,9 @@ import type { ClientView, LobbyView } from '@ud/protocol'
 export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
   const letters = view.code.split('')
   const joinUrl = window.location.host
+  // The deep link the phone already knows how to read: /r/GRUB lands on the
+  // join screen with the code filled in, so a scan skips the typing entirely.
+  const scanUrl = `${window.location.origin}/r/${view.code}`
 
   return (
     <>
@@ -20,32 +24,43 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
       </div>
 
       <p className="stage__sub" style={{ marginTop: '6vmin' }}>
-        room code — go to {joinUrl} on your phone and type it in
+        room code — scan the square, or go to {joinUrl} and type it in
       </p>
 
-      <div className="code" data-testid="room-code">
-        {letters.map((ch, i) => (
-          <Clay
-            // The last tile is upside down, always. The name has to be earned by
-            // the interface, not printed on it.
-            // biome-ignore lint/suspicious/noArrayIndexKey: a four-letter code is fixed-length and never reorders, so position is the identity
-            key={`${ch}-${i}`}
-            seed={`code-${view.code}-${i}`}
-            tone={
-              i === letters.length - 1
-                ? 'ink'
-                : (['brick', 'sage', 'slate', 'butter'][i % 4] as 'brick')
-            }
-            shape={{ radius: 20, jitter: 6, tilt: 4 }}
-            className="code__tile"
-            style={i === letters.length - 1 ? { transform: 'rotate(180deg)' } : undefined}
-          >
-            {ch}
-          </Clay>
-        ))}
+      <div className="join">
+        <div className="code" data-testid="room-code">
+          {letters.map((ch, i) => (
+            <Clay
+              // The last tile is inked rather than flipped. The joke is everywhere
+              // else in this game; a code read across a room and retyped on a
+              // phone is the one place legibility outranks it.
+              // biome-ignore lint/suspicious/noArrayIndexKey: a four-letter code is fixed-length and never reorders, so position is the identity
+              key={`${ch}-${i}`}
+              seed={`code-${view.code}-${i}`}
+              tone={
+                i === letters.length - 1
+                  ? 'ink'
+                  : (['brick', 'sage', 'slate', 'butter'][i % 4] as 'brick')
+              }
+              shape={{ radius: 20, jitter: 6, tilt: 4 }}
+              className="code__tile"
+            >
+              {ch}
+            </Clay>
+          ))}
+        </div>
+
+        <div className="join__qr">
+          <Qr
+            value={scanUrl}
+            size="clamp(84px, 16vmin, 190px)"
+            label={`scan to join room ${view.code}`}
+          />
+          <span className="join__scan">or scan</span>
+        </div>
       </div>
 
-      <p className="stage__sub">yes, the last one is upside down. it does that.</p>
+      <p className="stage__sub">four letters. any case, we are not fussy.</p>
 
       <div className="lobby__seats" style={{ marginTop: '2vmin' }}>
         {view.seats.map((s) => (

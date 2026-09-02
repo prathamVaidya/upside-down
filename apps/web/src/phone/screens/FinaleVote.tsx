@@ -32,6 +32,12 @@ export function FinaleVote({
         <Countdown endsAt={view.phaseEndsAt} offsetMs={offsetMs} word="to vote" />
       </div>
 
+      {/* Every answer below is aimed at this one prompt, and the ballot scrolls
+          — so say what the question was before the list of answers to it. */}
+      <p className="phone__prompt phone__prompt--sub" data-testid="vote-prompt">
+        {phase.promptText}
+      </p>
+
       <div className="votesleft">
         <span className="phone__label">votes left</span>
         <span className="ud-sr-only">{phase.votesLeft} votes left to spend</span>
