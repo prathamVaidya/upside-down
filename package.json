@@ -15,6 +15,8 @@
     "bots": "bun run tools/botgame/src/index.ts",
     "content:check": "bun run packages/content/src/check.ts",
     "build": "bun run --cwd apps/web build",
+    "deploy": "railway up",
+    "deploy:logs": "railway logs",
     "typecheck": "tsc --build --force",
     "lint": "biome check .",
     "format": "biome check --write .",

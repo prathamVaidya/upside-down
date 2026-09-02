@@ -1,0 +1,22 @@
+# The build stage runs `bun install` and then `COPY . .`. Without this file that
+# copy drops the host's macOS node_modules on top of the freshly installed Linux
+# ones, and the image ships binaries that cannot run.
+node_modules
+**/node_modules
+
+# Build outputs — regenerated inside the image by `bun run build`.
+apps/server/public
+dist
+**/dist
+
+# Not needed to serve a game. `tools/` stays: it is a workspace member, so
+# `bun install --frozen-lockfile` fails without its package.json.
+.git
+.github
+cypress
+e2e
+design
+.vscode
+.idea
+.DS_Store
+*.log
