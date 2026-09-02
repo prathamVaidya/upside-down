@@ -37,6 +37,12 @@ export function Vote({
         <Countdown endsAt={view.phaseEndsAt} offsetMs={offsetMs} word="to vote" />
       </div>
 
+      {/* Voters who sat out this prompt have not seen it, and a punchline read
+          without its setup is just a sentence. */}
+      <p className="phone__prompt phone__prompt--sub" data-testid="vote-prompt">
+        {phase.promptText}
+      </p>
+
       <ClayButton
         seed="choice-a"
         data-testid="choice-a"
@@ -93,6 +99,10 @@ function SittingOut({
         The room is voting on your answer right now
       </h1>
       <p className="phone__label">act natural.</p>
+
+      <p className="phone__prompt phone__prompt--sub" data-testid="vote-prompt">
+        {phase.promptText}
+      </p>
 
       <Clay seed="your-answer" tone="card" style={{ padding: 20, marginTop: 16 }}>
         <div style={{ fontFamily: 'var(--ud-stage-font)', fontSize: 18, fontWeight: 500 }}>

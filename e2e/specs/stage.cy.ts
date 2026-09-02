@@ -19,8 +19,15 @@ describe('the stage', () => {
     cy.readRoomCode().then((code) => {
       expect(code).to.match(/^[A-Z]{4}$/)
 
-      cy.contains('on your phone and type it in').should('be.visible')
+      cy.contains('and type it in').should('be.visible')
       cy.contains(/of 3 needed/).should('be.visible')
+
+      // The other way in. It has to carry this room's code, or it is a
+      // picture of a link to somebody else's game.
+      cy.get('svg[role="img"]')
+        .filter(`[aria-label*="${code}"]`)
+        .should('be.visible')
+        .and('have.attr', 'aria-label', `scan to join room ${code}`)
 
       cy.task<string[]>('bots:seat', { code, count: 3 }).then((names) => {
         for (const name of names) cy.contains(name).should('be.visible')

@@ -46,6 +46,19 @@
   margin: 0;
 }
 
+/*
+ * The same prompt, on a screen where it is context rather than the task. While
+ * writing it is the whole job and takes the hero size; while voting the two
+ * answers are what the thumb is aiming at, so the question sits above them
+ * smaller and softer — readable at a glance, not competing for the tap.
+ */
+.phone__prompt--sub {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ud-ink-soft);
+}
+
 .phone__hint {
   font-size: 11.5px;
   color: var(--ud-ink-faint);

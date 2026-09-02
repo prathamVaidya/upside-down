@@ -66,6 +66,35 @@
 }
 
 /* The room code, as tiles. */
+/*
+ * Type it or scan it, side by side.
+ *
+ * Wraps rather than shrinks: on a narrow television the code drops to its own
+ * line at full size, because a code nobody can read from the sofa defeats the
+ * point of putting it on a television at all.
+ */
+.join {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3vmin, 44px);
+  flex-wrap: wrap;
+}
+.join__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(4px, 0.8vmin, 10px);
+  padding: clamp(6px, 1vmin, 12px);
+  background: var(--ud-card);
+  border-radius: 14px;
+  box-shadow: var(--ud-lift);
+}
+.join__scan {
+  font-size: clamp(10px, 1.2vmin, 15px);
+  color: var(--ud-ink-soft);
+}
+
 .code {
   display: flex;
   gap: clamp(6px, 1.2vmin, 16px);
