@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Doug, the Upside Down mascot</title>
+  <defs>
+    <path id="head" d="M64 12C94 12 119 36 120 68C121 96 97 112 65 112C32 112 7 96 8 69C9 38 33 12 64 12Z" />
+  </defs>
+  <use href="#head" fill="#40352c" opacity=".18" transform="translate(0 7)" />
+  <use href="#head" fill="#efc75e" />
+  <path d="M14 61C20 31 40 18 64 18C87 18 109 37 115 63C108 33 89 12 64 12C36 12 15 34 14 61Z" fill="#fff" opacity=".4" />
+  <path d="M9 78C18 99 41 104 65 104C91 104 110 93 119 76C116 99 94 112 65 112C35 112 13 99 9 78Z" fill="#40352c" opacity=".12" />
+  <ellipse cx="42" cy="51" rx="14" ry="16" fill="#fbf4e8" />
+  <ellipse cx="86" cy="51" rx="14" ry="16" fill="#fbf4e8" />
+  <ellipse cx="40" cy="53" rx="6" ry="7" fill="#40352c" />
+  <ellipse cx="84" cy="53" rx="6" ry="7" fill="#40352c" />
+  <path d="M55 84H73C73 96 55 96 55 84Z" fill="#b0673f" />
+</svg>

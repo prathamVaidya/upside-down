@@ -40,8 +40,7 @@ game asserting it does not. If you add a field to `ClientView`, think about who 
 
 ## Adding prompts
 
-The easiest useful contribution, and no programming needed. See the README — one line in
-`content/prompts/<region>.yaml`, then `bun run content:check`.
+The easiest useful contribution, and no programming needed. Follow [How to add prompts](docs/adding-prompts.md) for file formats, regions, levels, and validation.
 
 Voice: dry, a little rude, never cutesy. The jokes belong to the players; a prompt that is already
 funny leaves them nothing to do. Prompts are fragments, not sentences.

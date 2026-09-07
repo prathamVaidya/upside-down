@@ -83,6 +83,8 @@ what a phone sends, so whatever the specs prove is true of real clients too.
 
 ## Adding prompts
 
+See [How to add prompts](docs/adding-prompts.md) for the full guide, including regions, levels, YAML examples, and troubleshooting.
+
 Prompts live in `content/prompts/*.yaml`, one file per region, and are CC0. Add a line:
 
 ```yaml
