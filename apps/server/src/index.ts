@@ -8,7 +8,7 @@ import { type Connection, handleMessage } from './socket.ts'
 const PUBLIC_DIR = fileURLToPath(new URL('../public/', import.meta.url))
 
 /**
- * One process serves the lot: the phone app at `/`, the television at `/stage`,
+ * One process serves the lot: landing at `/`, phone at `/play`, television at `/stage`,
  * and the socket at `/ws`. In development the two Vite servers proxy `/ws`
  * here, so both clients hot-reload against live rooms.
  */
@@ -88,13 +88,15 @@ function serveStatic(pathname: string): Response {
     return new Response(Bun.file(candidate))
   }
 
-  // Otherwise pick a document. `/stage` is the television; everything else is
-  // the phone, including `/r/GRUB` — the QR-code deep link, whose code the
-  // client reads back off the path.
+  // Keep these document routes in sync with the Vite dev server.
   const isStage = pathname === '/stage' || pathname.startsWith('/stage/')
+  const isPhone =
+    pathname === '/play' || pathname === '/play/' || /^\/r\/[A-Za-z]{4}\/?$/.test(pathname)
   const document = isStage
     ? join(PUBLIC_DIR, 'stage', 'index.html')
-    : join(PUBLIC_DIR, 'index.html')
+    : isPhone
+      ? join(PUBLIC_DIR, 'play', 'index.html')
+      : join(PUBLIC_DIR, 'index.html')
 
   return new Response(Bun.file(document), { headers: { 'content-type': 'text/html' } })
 }
@@ -102,6 +104,6 @@ function serveStatic(pathname: string): Response {
 if (import.meta.main) {
   const { server } = startServer()
   console.log(`upside down · http://localhost:${server.port}`)
-  console.log(`  phone  http://localhost:${server.port}/`)
+  console.log(`  phone  http://localhost:${server.port}/play`)
   console.log(`  stage  http://localhost:${server.port}/stage`)
 }

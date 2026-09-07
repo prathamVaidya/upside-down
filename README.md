@@ -3,7 +3,7 @@
 A free, open-source party game for 3–8 players plus unlimited audience.
 
 One person opens the game on a big screen — a TV, a laptop lid flipped around, a shared call.
-Everyone else joins on their phone with a four-letter room code. No app, no account. The game
+Everyone else joins at `/play` on their phone with a four-letter room code. No app, no account. The game
 shows a prompt, two people write an answer to it, and everyone else votes on which is funnier.
 
 A full game runs about fifteen minutes.
@@ -21,7 +21,7 @@ bun install
 bun dev
 ```
 
-Then open **http://localhost:5173/stage** on the big screen and **http://localhost:5173** on
+Then open **http://localhost:5173** on the big screen, choose **Create a room**, and open **http://localhost:5173/play** on
 phones. The Vite server proxies the socket to the Bun server on `:3000`, and routes the two
 surfaces exactly the way production does — same URLs in both, so you are never debugging the
 wrong screen.
@@ -35,7 +35,8 @@ bun apps/server/src/index.ts
 
 | Route | |
 |---|---|
-| `/` | the phone — a link a friend forwards should land here |
+| `/` | landing page — create a room or join an existing one |
+| `/play` | the phone — enter a room code and name |
 | `/r/GRUB` | the phone with the code pre-filled; this is what the idle screen's QR points at |
 | `/stage` | the television |
 | `/ws` | the WebSocket |

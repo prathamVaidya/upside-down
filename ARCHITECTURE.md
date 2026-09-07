@@ -14,7 +14,7 @@ Three programs and one shared brain.
 ```
    TV / laptop lid                    phones (3–8 players + audience)
    ┌──────────────┐                   ┌──────┐ ┌──────┐ ┌──────┐
-   │ web  /stage  │                   │ web  /   ·   /r/GRUB        │
+   │ web  /stage  │                   │ web  /play · /r/GRUB        │
    └──────┬───────┘                   └──┬───┘ └──┬───┘ └──┬───────┘
           │  WebSocket (JSON)            │        │        │
           └──────────────┬───────────────┴────────┴────────┘
@@ -75,8 +75,9 @@ upside-down/
 ├── apps/
 │   ├── server/               Bun.serve — sockets, timers, room registry
 │   │   └── src/{index,rooms,room,socket,config}.ts
-│   └── web/                  Vite, two HTML entry points, one bundle graph
-│       ├── index.html            the phone
+│   └── web/                  Vite, three HTML entry points, one bundle graph
+│       ├── index.html            the landing page
+│       ├── play/index.html       the phone
 │       ├── stage/index.html      the television
 │       ├── src/stage/screens/{Idle,Writing,Voting,Reveal,Finale,Scoreboard,Winner}.tsx
 │       └── src/phone/screens/{Join,Lobby,Write,Vote,FinaleVote,Waiting,Dropped}.tsx
@@ -107,9 +108,9 @@ what keeps a full game runnable in a unit test.
 projection and belongs on the server. This kills client-side rule duplication, and it makes it
 structurally impossible to ship un-redacted state types into a bundle a player can read.
 
-### Two documents, one app
+### Three documents, one app
 
-`apps/web` builds two HTML entry points from one bundle graph. React and the clay system are
+`apps/web` builds three HTML entry points from one bundle graph: landing, phone, and stage. The landing page has no room connection. React and the clay system are
 emitted once and shared; each surface adds about 3KB of its own.
 
 The original plan had these as two separate Vite apps, on the theory that a route split would ship
@@ -136,12 +137,13 @@ One process, one container. Vite builds both clients into `apps/server/public/`,
 
 | Route | Serves |
 |---|---|
-| `/` | phone app — a link a friend forwards should open the join screen |
+| `/` | landing page — Create a room opens `/stage`; Join a room opens `/play` |
+| `/play` | phone app — enter a room code and name |
 | `/r/GRUB` | phone app, code pre-filled — this is what the idle-screen QR points at |
 | `/stage` | stage app — the host opens this on the TV |
 | `/ws` | WebSocket upgrade |
 
-In development one Vite server on `:5173` serves the same four routes and proxies `/ws` to Bun on
+In development one Vite server on `:5173` serves the same routes and proxies `/ws` to Bun on
 `:3000`, so hot reload works on both surfaces while the server holds live rooms. The dev routing
 table lives in `apps/web/vite.config.ts` and deliberately mirrors the one above — CI asserts `/`
 and `/stage` return different documents, because when they did not the symptom was simply that

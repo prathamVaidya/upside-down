@@ -33,6 +33,7 @@ export class RoomClient {
   private snap: RoomSnapshot
   private attempt = 0
   private closed = false
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private pingTimer: ReturnType<typeof setInterval> | null = null
   private bestRtt = Number.POSITIVE_INFINITY
   private pendingName: string | null = null
@@ -114,27 +115,39 @@ export class RoomClient {
   // ---- Lifecycle --------------------------------------------------------
 
   connect(): void {
-    if (this.closed) return
+    if (this.snap.mustReload || this.ws) return
+    this.closed = false
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer)
+    this.reconnectTimer = null
     this.patch({ status: this.snap.view ? 'dropped' : 'connecting' })
 
     const ws = new WebSocket(this.url)
     this.ws = ws
 
     ws.addEventListener('open', () => {
+      if (this.ws !== ws || this.closed) return
       this.attempt = 0
       this.patch({ status: 'open' })
       this.startClockSync()
       this.greet()
     })
 
-    ws.addEventListener('message', (ev) => this.receive(JSON.parse(String(ev.data)) as ServerMsg))
+    ws.addEventListener('message', (ev) => {
+      if (this.ws !== ws || this.closed) return
+      this.receive(JSON.parse(String(ev.data)) as ServerMsg)
+    })
 
     ws.addEventListener('close', () => {
+      if (this.ws !== ws) return
+      this.ws = null
       this.stopClockSync()
       if (this.closed) return
       this.patch({ status: 'dropped' })
       const delay = RECONNECT_STEPS[Math.min(this.attempt++, RECONNECT_STEPS.length - 1)]!
-      setTimeout(() => this.connect(), delay)
+      this.reconnectTimer = setTimeout(() => {
+        this.reconnectTimer = null
+        if (!this.closed) this.connect()
+      }, delay)
     })
 
     ws.addEventListener('error', () => ws.close())
@@ -142,8 +155,12 @@ export class RoomClient {
 
   close(): void {
     this.closed = true
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer)
+    this.reconnectTimer = null
     this.stopClockSync()
-    this.ws?.close()
+    const ws = this.ws
+    this.ws = null
+    ws?.close()
   }
 
   /**
@@ -210,9 +227,8 @@ export class RoomClient {
         break
 
       case 'reload':
-        this.closed = true
         this.patch({ mustReload: msg.reason })
-        this.ws?.close()
+        this.close()
         break
 
       case 'sound':

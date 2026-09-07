@@ -8,7 +8,7 @@
 describe('joining a room', () => {
   it('lets a stranger in with a code and a name', () => {
     cy.task<string>('room:open').then((code) => {
-      cy.visit('/')
+      cy.visit('/play')
       cy.phase('join')
 
       cy.contains('the code on the TV').should('be.visible')
@@ -40,7 +40,7 @@ describe('joining a room', () => {
   })
 
   it('says so plainly when the code is not a room', () => {
-    cy.visit('/')
+    cy.visit('/play')
     cy.get('[data-testid="code-input"]').type('ZZZZ')
     cy.get('[data-testid="name-input"]').type('Lost')
     cy.get('[data-testid="join"]').click()

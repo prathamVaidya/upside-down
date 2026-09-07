@@ -12,7 +12,7 @@ import { Qr } from '../Qr.tsx'
  */
 export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
   const letters = view.code.split('')
-  const joinUrl = window.location.host
+  const joinUrl = `${window.location.host}/play`
   // The deep link the phone already knows how to read: /r/GRUB lands on the
   // join screen with the code filled in, so a scan skips the typing entirely.
   const scanUrl = `${window.location.origin}/r/${view.code}`

@@ -46,10 +46,12 @@ jobs:
       # failure looks like "both URLs show the same thing" rather than an error.
       - name: stage and phone are different surfaces
         run: |
-          phone=$(curl -s http://localhost:3000/ | md5sum | cut -d' ' -f1)
+          landing=$(curl -s http://localhost:3000/ | md5sum | cut -d' ' -f1)
+          phone=$(curl -s http://localhost:3000/play | md5sum | cut -d' ' -f1)
           stage=$(curl -s http://localhost:3000/stage | md5sum | cut -d' ' -f1)
           deep=$(curl -s http://localhost:3000/r/GRUB | md5sum | cut -d' ' -f1)
-          test "$phone" != "$stage" || { echo "::error::/ and /stage served the same document"; exit 1; }
+          test "$landing" != "$phone" || { echo "::error::/ and /play served the same document"; exit 1; }
+          test "$phone" != "$stage" || { echo "::error::/play and /stage served the same document"; exit 1; }
           test "$phone" = "$deep" || { echo "::error::/r/CODE did not serve the phone"; exit 1; }
 
   # Separate job: Cypress needs its own browser and takes a few minutes, and a
