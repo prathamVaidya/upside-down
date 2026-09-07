@@ -33,6 +33,23 @@ const roomOf = (code: string): Room => {
 
 export function makeTasks(wsUrl: string) {
   return {
+    async 'bots:settings'({
+      code,
+      region,
+      level,
+      open,
+    }: {
+      code: string
+      region: 'global' | 'in' | 'uk' | 'us'
+      level: 1 | 2 | 3
+      open: boolean
+    }): Promise<null> {
+      const host = roomOf(code).bots.find((b) => b.view?.you?.isHost)
+      if (!host) throw new Error('no bot is host')
+      host.send({ t: 'settings.set', region, level })
+      host.send({ t: 'settings.open', open })
+      return null
+    },
     /** Open a room headlessly, as a television would, and hand back the code. */
     async 'room:open'(): Promise<string> {
       const { stage, code } = await openRoom(wsUrl)

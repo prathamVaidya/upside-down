@@ -1,0 +1,304 @@
+.room-setup {
+  width: 100%;
+}
+.room-setup h1,
+.room-setup h2 {
+  font-family: var(--ud-stage-font);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.room-setup h1 {
+  font-size: 28px;
+}
+.room-setup h2 {
+  font-size: 23px;
+  margin-top: 28px;
+}
+.room-setup > p {
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+.room-setup__regions {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 18px;
+}
+.room-setup__regions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.room-setup__choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 18px 12px;
+  color: var(--ud-ink);
+}
+.room-setup__choice strong {
+  font: 600 21px var(--ud-stage-font);
+}
+.room-setup__choice span {
+  font: 13px / 1.4 var(--ud-quiet-font);
+}
+.room-setup .room-setup__choice .room-setup__flag {
+  font: inherit;
+}
+.room-setup__flag img {
+  display: inline-block;
+  width: 1.25em;
+  height: auto;
+  vertical-align: -0.08em;
+}
+.room-setup__choice[aria-pressed="true"],
+.room-setup__choice[data-selected="true"] {
+  outline: 2px solid var(--ud-ink);
+  outline-offset: 3px;
+}
+.room-setup__choice:focus-visible {
+  outline: 4px solid var(--ud-ink);
+  outline-offset: 5px;
+}
+.room-setup--stage {
+  max-width: 1100px;
+  text-align: center;
+}
+.room-setup--stage h1 {
+  font-size: clamp(26px, 4.6vmin, 60px);
+}
+.room-setup--stage h2 {
+  font-size: clamp(22px, 3vmin, 38px);
+  margin-top: 3vmin;
+}
+.room-setup--stage .room-setup__regions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.room-setup--stage .room-setup__choice strong {
+  font-size: clamp(18px, 2.8vmin, 36px);
+}
+.room-setup--stage .room-setup__choice span {
+  font-size: clamp(12px, 1.6vmin, 20px);
+}
+.stage:has(.room-setup) {
+  overflow: auto;
+  height: auto;
+  min-height: 100dvh;
+  padding-block: 32px;
+}
+@media (max-width: 600px) {
+  .room-setup--stage .room-setup__regions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.roast {
+  --roast-face: 52px;
+  --roast-knob: 44px;
+  margin-top: 28px;
+}
+.roast__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.roast__face {
+  width: var(--roast-face);
+  height: var(--roast-face);
+  flex-shrink: 0;
+  background: var(--ud-card);
+  border-radius: 48% 52% 44% 46% / 56% 54% 42% 40%;
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.8),
+    0 9px 0 rgba(64, 53, 44, 0.14);
+  position: relative;
+}
+.roast__face i::before,
+.roast__face i::after {
+  content: "";
+  position: absolute;
+  top: 27%;
+  width: 15%;
+  height: 18%;
+  background: var(--ud-ink);
+  border-radius: 50%;
+}
+.roast__face i::before {
+  left: 21%;
+}
+.roast__face i::after {
+  right: 21%;
+}
+.roast__face b {
+  position: absolute;
+  left: 35%;
+  top: 53%;
+  width: 30%;
+  height: 19%;
+  border: 3px solid var(--ud-ink);
+  border-top: 0;
+  border-radius: 0 0 50% 50%;
+}
+.roast__face--devil {
+  background: var(--ud-ink);
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.18),
+    0 9px 0 rgba(64, 53, 44, 0.22);
+}
+.roast__face--devil i::before,
+.roast__face--devil i::after {
+  background: var(--ud-table);
+  height: 9%;
+  border-radius: 3px;
+  transform: rotate(20deg);
+}
+.roast__face--devil i::after {
+  transform: rotate(-20deg);
+}
+.roast__face--devil b {
+  border: 0;
+  background: var(--ud-table);
+  height: 22%;
+  width: 42%;
+  left: 29%;
+}
+.roast__face--devil b::after {
+  content: "";
+  position: absolute;
+  width: 15%;
+  height: 42%;
+  left: 37%;
+  background: var(--ud-ink);
+}
+.roast__face--devil em::before,
+.roast__face--devil em::after {
+  content: "";
+  position: absolute;
+  top: -19%;
+  width: 23%;
+  height: 29%;
+  background: var(--ud-brick);
+  clip-path: polygon(15% 0, 100% 100%, 0 100%);
+  left: 19%;
+}
+.roast__face--devil em::after {
+  left: auto;
+  right: 15%;
+  transform: scaleX(-1);
+}
+.roast__slider {
+  flex: 1;
+  min-width: 0;
+  height: max(48px, var(--roast-knob));
+  position: relative;
+}
+.roast__track {
+  position: absolute;
+  top: 30%;
+  height: 40%;
+  width: 100%;
+  border-radius: 24px 28px 20px 24px;
+  background: var(--ud-groove);
+  box-shadow: inset 0 5px 0 rgba(64, 53, 44, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: calc(var(--roast-knob) / 2 - 4px);
+}
+.roast__track i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(64, 53, 44, 0.25);
+}
+.roast__travel {
+  position: absolute;
+  inset: 0 calc(var(--roast-knob) / 2);
+  pointer-events: none;
+  transform: translateX(var(--roast-position));
+  transition: transform 180ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.roast__knob {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--roast-knob);
+  height: var(--roast-knob);
+  border-radius: 48% 52% 46% 44% / 58% 53% 42% 42%;
+  background: var(--ud-sage);
+  box-shadow:
+    inset 0 5px 0 rgba(255, 255, 255, 0.28),
+    0 8px 0 rgba(64, 53, 44, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roast__travel {
+    transition: none;
+  }
+}
+.roast__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.roast__input::-webkit-slider-thumb {
+  appearance: none;
+  width: var(--roast-knob);
+  height: var(--roast-knob);
+}
+.roast__input,
+.roast__input::-webkit-slider-runnable-track {
+  appearance: none;
+}
+.roast__input::-moz-range-thumb {
+  width: var(--roast-knob);
+  height: var(--roast-knob);
+  border: 0;
+}
+.roast__slider:has(input:focus-visible) .roast__knob {
+  outline: 3px solid var(--ud-ink);
+  outline-offset: 4px;
+}
+.roast__labels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  text-align: center;
+  margin-top: 22px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ud-ink-soft);
+}
+.roast__labels [data-selected="true"] {
+  color: var(--ud-ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.roast__accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.room-setup--stage .roast {
+  --roast-face: clamp(52px, 9vmin, 104px);
+  --roast-knob: clamp(44px, 7vmin, 80px);
+  max-width: 920px;
+  margin: 4vmin auto 0;
+}
+.room-setup--stage .roast__row {
+  gap: 4vmin;
+}
+.room-setup--stage .roast__labels {
+  font-size: clamp(13px, 2vmin, 24px);
+}

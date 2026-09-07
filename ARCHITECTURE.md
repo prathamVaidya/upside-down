@@ -444,7 +444,8 @@ has submitted.
   loop is written for N rounds and tested at three; only the finale phase is missing.
 - **M2 — full game.** ✅ Three rounds, the finale with its own ballot and reveal, scoring config,
   sweep, winner.
-- **M3 — content.** Regions, levels, the setup screen, fallbacks, CI lint.
+- **M3 — content.** Regions, levels, the live phone/stage setup screen, fallbacks and CI lint
+  are implemented. Regional prompt pools still need expanding to the 60+ target.
 - **M4 — polish.** All 17 screens to mockup fidelity, Doug's pose set, sound, reduced motion, edge
   states.
 - **M5 — ship.** Dockerfile, deploy, README, CONTRIBUTING, QR, domain.
