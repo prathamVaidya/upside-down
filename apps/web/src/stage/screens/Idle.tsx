@@ -86,7 +86,9 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
             )}
           </div>
         ))}
-        {view.seats.length === 0 && <p className="stage__sub">nobody yet. it's quiet.</p>}
+        {view.seats.length === 0 && (
+          <p className="stage__sub">The first person to join becomes the host.</p>
+        )}
       </div>
 
       <div className="stage__shelf" />

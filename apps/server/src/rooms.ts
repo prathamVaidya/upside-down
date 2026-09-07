@@ -81,4 +81,11 @@ export class Rooms {
   get size(): number {
     return this.byCode.size
   }
+
+  /** Rooms with at least one connected phone or stage, excluding idle retained rooms. */
+  get activeRoomCount(): number {
+    let count = 0
+    for (const room of this.byCode.values()) if (!room.isEmpty) count++
+    return count
+  }
 }

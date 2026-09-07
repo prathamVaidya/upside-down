@@ -31,7 +31,10 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
       }
 
       if (url.pathname === '/health') {
-        return Response.json({ ok: true, rooms: rooms.size })
+        return Response.json(
+          { ok: true, rooms: rooms.size, activeRoomCount: rooms.activeRoomCount },
+          { headers: { 'cache-control': 'no-store' } },
+        )
       }
 
       return serveStatic(url.pathname)
