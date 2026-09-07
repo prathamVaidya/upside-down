@@ -50,14 +50,11 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
           ))}
         </div>
 
-        <div className="join__qr">
-          <Qr
-            value={scanUrl}
-            size="clamp(144px, 22vmin, 240px)"
-            label={`scan to join room ${view.code}`}
-          />
-          <span className="join__scan">or scan</span>
-        </div>
+        <Qr
+          value={scanUrl}
+          size="clamp(144px, 22vmin, 240px)"
+          label={`scan to join room ${view.code}`}
+        />
       </div>
 
       <p className="stage__sub">four letters. any case, we are not fussy.</p>
