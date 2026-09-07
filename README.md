@@ -125,8 +125,11 @@ The full game loop runs: three rounds over real sockets, with server timers, per
 redaction and reconnection. Rounds 1 and 2 are head-to-head; round 3 is the finale — one prompt
 for the room, every answer on screen, three votes each to spread around.
 
-Coming next: regions and the room-setup screen (M3), then the remaining screens and states at full
-fidelity plus sound (M4).
+Room setup is available from the host's lobby: choose India, UK, US, or Global and one of
+three content levels. Choices appear live on the stage and survive a refresh.
+
+Coming next: expand the regional prompt pools (M3), then the remaining screens and states at
+full fidelity plus sound (M4).
 
 ## Licence
 

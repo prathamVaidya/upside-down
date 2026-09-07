@@ -96,7 +96,15 @@ export function App() {
   function renderPhase(view: ClientView) {
     switch (phase.name) {
       case 'lobby':
-        return <Lobby view={view} phase={phase} onStart={() => client.send({ t: 'game.start' })} />
+        return (
+          <Lobby
+            view={view}
+            phase={phase}
+            onStart={() => client.send({ t: 'game.start' })}
+            onSettingsOpen={(open) => client.send({ t: 'settings.open', open })}
+            onSettingsChange={(region, level) => client.send({ t: 'settings.set', region, level })}
+          />
+        )
 
       case 'writing':
         return phase.assignment ? (

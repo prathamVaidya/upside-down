@@ -1,5 +1,6 @@
 import { Blob, Clay, Doug, Wordmark } from '@ud/clay'
 import type { ClientView, LobbyView } from '@ud/protocol'
+import { RoomSetup, settingsLabel } from '../../RoomSetup.tsx'
 import { Qr } from '../Qr.tsx'
 
 /**
@@ -16,6 +17,20 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
   // The deep link the phone already knows how to read: /r/GRUB lands on the
   // join screen with the code filled in, so a scan skips the typing entirely.
   const scanUrl = `${window.location.origin}/r/${view.code}`
+
+  if (phase.settingsOpen) {
+    return (
+      <>
+        <p className="stage__sub">
+          Room {view.code} · join at {joinUrl}
+        </p>
+        <RoomSetup settings={phase.settings} />
+        <p className="stage__sub">
+          The host picks on their phone. Everyone else gets to judge the choice.
+        </p>
+      </>
+    )
+  }
 
   return (
     <>
@@ -57,7 +72,9 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
         />
       </div>
 
-      <p className="stage__sub">four letters. any case, we are not fussy.</p>
+      <p className="stage__sub" data-testid="settings-summary">
+        {settingsLabel(phase.settings)}
+      </p>
 
       <div className="lobby__seats" style={{ marginTop: '2vmin' }}>
         {view.seats.map((s) => (

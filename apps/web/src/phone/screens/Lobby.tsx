@@ -1,18 +1,44 @@
 import { Blob, Clay, ClayButton } from '@ud/clay'
 import type { ClientView, LobbyView } from '@ud/protocol'
+import { RoomSetup, settingsLabel } from '../../RoomSetup.tsx'
 
 /** Waiting, plus the host's one piece of power. */
 export function Lobby({
   view,
   phase,
   onStart,
+  onSettingsOpen,
+  onSettingsChange,
 }: {
   view: ClientView
   phase: LobbyView
   onStart: () => void
+  onSettingsOpen?: (open: boolean) => void
+  onSettingsChange?: (
+    region: LobbyView['settings']['region'],
+    level: LobbyView['settings']['level'],
+  ) => void
 }) {
   const isHost = view.you?.isHost ?? false
   const waiting = Math.max(0, phase.minPlayers - phase.playerCount)
+
+  if (isHost && phase.settingsOpen) {
+    return (
+      <div className="phone">
+        <p className="phone__label">Room {view.code} · everyone can see your choices</p>
+        <RoomSetup settings={phase.settings} onChange={onSettingsChange} />
+        <p className="phone__hint">Changes are saved as you pick.</p>
+        <ClayButton
+          seed="setup-done"
+          tone="sage"
+          data-testid="setup-done"
+          onClick={() => onSettingsOpen?.(false)}
+        >
+          Done
+        </ClayButton>
+      </div>
+    )
+  }
 
   return (
     <div className="phone">
@@ -51,11 +77,22 @@ export function Lobby({
         shape={{ radius: 14, jitter: 4, tilt: 0.8 }}
         style={{ marginTop: 22, padding: '14px 16px', fontSize: 12.5, lineHeight: 1.55 }}
       >
-        {phase.settings.region} · level {phase.settings.level}
+        <span data-testid="settings-summary">{settingsLabel(phase.settings)}</span>
         <br />
         {view.roundCount} round{view.roundCount === 1 ? '' : 's'}, about{' '}
         {Math.max(5, view.roundCount * 6)} minutes
       </Clay>
+
+      {isHost && (
+        <ClayButton
+          seed="room-setup"
+          tone="slate"
+          data-testid="setup-open"
+          onClick={() => onSettingsOpen?.(true)}
+        >
+          Set the room
+        </ClayButton>
+      )}
 
       <div className="phone__spacer" />
 
