@@ -9,12 +9,15 @@
  * the state a real client starts in, and it must render the waiting screen
  * rather than nothing.
  */
-import { render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { App } from '../src/stage/App.tsx'
 
 describe('stage boot', () => {
   afterEach(() => {
+    // Vitest globals are disabled, so Testing Library cannot register auto-cleanup.
+    // Unmount before jsdom teardown to close the socket and cancel its timers.
+    cleanup()
     localStorage.clear()
     sessionStorage.clear()
   })
