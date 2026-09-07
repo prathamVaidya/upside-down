@@ -13,6 +13,7 @@ export type RoomSnapshot = {
   offsetMs: number
   /** The server asked us to reload — usually a deploy changed the protocol. */
   mustReload: string | null
+  roomClosed: string | null
 }
 
 export type Role = 'stage' | 'phone'
@@ -50,6 +51,7 @@ export class RoomClient {
       error: null,
       offsetMs: 0,
       mustReload: null,
+      roomClosed: null,
     }
   }
 
@@ -115,7 +117,7 @@ export class RoomClient {
   // ---- Lifecycle --------------------------------------------------------
 
   connect(): void {
-    if (this.snap.mustReload || this.ws) return
+    if (this.snap.mustReload || this.snap.roomClosed || this.ws) return
     this.closed = false
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer)
     this.reconnectTimer = null
@@ -193,6 +195,13 @@ export class RoomClient {
 
   private receive(msg: ServerMsg): void {
     switch (msg.t) {
+      case 'room.closed':
+        if (this.snap.code) this.forgetSeat(this.snap.code)
+        this.storedCode = null
+        this.pendingName = null
+        this.close()
+        this.patch({ roomClosed: msg.reason, code: null, seatId: null, view: null, error: null })
+        break
       case 'welcome':
         this.storedCode = msg.code
         if (msg.seatToken) this.storeSeat(msg.code, msg.seatToken)

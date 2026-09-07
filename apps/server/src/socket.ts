@@ -161,6 +161,10 @@ export function handleMessage(conn: Connection, rooms: Rooms, raw: string): void
 
   // Everything below needs a seat.
   const { room, client } = conn
+  if (room?.destroyed) {
+    notFound(client, room.state.code)
+    return
+  }
   if (!room || !client.seatId) {
     client.send({ t: 'error', code: 'SEAT_NOT_FOUND', message: 'join a room first.' })
     return
@@ -168,6 +172,17 @@ export function handleMessage(conn: Connection, rooms: Rooms, raw: string): void
   const seatId = client.seatId
 
   switch (msg.t) {
+    case 'room.destroy':
+      if (room.state.hostSeatId !== seatId || client.isStage) {
+        client.send({
+          t: 'error',
+          code: 'NOT_HOST',
+          message: 'only the host can destroy this room.',
+        })
+        return
+      }
+      rooms.destroy(room)
+      return
     case 'settings.set':
       room.dispatch({ type: 'settings.set', seatId, region: msg.region, level: msg.level })
       return

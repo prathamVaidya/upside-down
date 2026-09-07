@@ -12,6 +12,7 @@ export default defineConfig({
     alias: {
       '@ud/protocol/validate': r('./packages/protocol/src/validate.ts'),
       '@ud/protocol': r('./packages/protocol/src/index.ts'),
+      '@ud/engine/bootstrap': r('./packages/engine/src/bootstrap.ts'),
       '@ud/engine': r('./packages/engine/src/index.ts'),
       '@ud/content': r('./packages/content/src/index.ts'),
       '@ud/clay': r('./packages/clay/src/index.ts'),

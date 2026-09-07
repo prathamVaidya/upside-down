@@ -287,6 +287,9 @@ state, not an error path.
   `connected: false`.
 - Host disconnected >30s hands host to the next-joined player.
 - Room is destroyed 10 minutes after the last disconnect, or 2 hours absolute.
+- The host can destroy the room from their phone in any phase after confirming.
+  The server checks host identity, removes the room and cancels its timers, then
+  notifies all clients to forget their seats and show the room-closed screen.
 
 ---
 

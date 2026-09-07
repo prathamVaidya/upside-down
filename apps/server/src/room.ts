@@ -24,6 +24,7 @@ export class Room {
   clients = new Set<Client>()
   private timers = new Set<ReturnType<typeof setTimeout>>()
   private seq = 0
+  destroyed = false
   lastActivityAt: number
 
   constructor(code: RoomCode, config: EngineConfig = DEFAULT_CONFIG) {
@@ -37,6 +38,7 @@ export class Room {
   }
 
   dispatch(event: Event): void {
+    if (this.destroyed) return
     const { state, effects } = reduce(this.state, event, this.ctx())
     this.state = state
     this.lastActivityAt = Date.now()
@@ -107,9 +109,12 @@ export class Room {
     return this.clients.size === 0
   }
 
-  destroy(): void {
+  destroy(reason = 'This room has expired.'): void {
+    if (this.destroyed) return
+    this.destroyed = true
     for (const t of this.timers) clearTimeout(t)
     this.timers.clear()
+    for (const client of this.clients) client.send({ t: 'room.closed', reason })
     this.clients.clear()
   }
 }

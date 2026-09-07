@@ -31,6 +31,12 @@ export class Rooms {
     return this.byCode.get(code.toUpperCase())
   }
 
+  destroy(room: Room): void {
+    if (this.byCode.get(room.state.code) !== room) return
+    this.byCode.delete(room.state.code)
+    room.destroy('The host destroyed this room. Everyone has been disconnected.')
+  }
+
   /**
    * Four-letter dictionary words: easier to read across a room and to retype
    * than random letters, and they let the idle screen make a joke about the B.

@@ -1,6 +1,7 @@
 import { ClayButton, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
-import type { Side } from '@ud/protocol'
+import type { ClientView, Side } from '@ud/protocol'
+import { RoomClosed } from '../RoomClosed.tsx'
 import { Dropped } from './screens/Dropped.tsx'
 import { FinaleVote } from './screens/FinaleVote.tsx'
 import { Join } from './screens/Join.tsx'
@@ -17,11 +18,13 @@ function codeFromPath(): string {
 }
 
 export function App() {
-  const { view, status, error, offsetMs, mustReload, client, seatId } = useRoom('phone')
+  const { view, status, error, offsetMs, mustReload, roomClosed, client, seatId } = useRoom('phone')
 
   // Mirrored onto <body> rather than a wrapper div, because each phone screen
   // owns its own root element and a wrapper would break the sticky layouts.
   usePhaseAttribute(view && seatId && view.you ? view.phase.name : 'join', status)
+
+  if (roomClosed) return <RoomClosed reason={roomClosed} />
 
   if (mustReload) {
     return (
@@ -63,70 +66,99 @@ export function App() {
   const phase = view.phase
   const you = view.you
 
-  switch (phase.name) {
-    case 'lobby':
-      return <Lobby view={view} phase={phase} onStart={() => client.send({ t: 'game.start' })} />
+  return (
+    <>
+      {renderPhase(view)}
+      {you.isHost && (
+        <div style={{ maxWidth: 420, margin: '0 auto', padding: '12px 24px 24px' }}>
+          <ClayButton
+            seed="destroy-room"
+            tone="brick"
+            data-testid="destroy-room"
+            disabled={status !== 'open'}
+            onClick={() => {
+              if (
+                window.confirm(
+                  'Destroy this room? This ends the game for everyone and cannot be undone.',
+                )
+              ) {
+                client.send({ t: 'room.destroy' })
+              }
+            }}
+          >
+            Destroy room
+          </ClayButton>
+        </div>
+      )}
+    </>
+  )
 
-    case 'writing':
-      return phase.assignment ? (
-        <Write
-          view={view}
-          phase={phase}
-          offsetMs={offsetMs}
-          onSubmit={(slot, text) => client.send({ t: 'answer.submit', slot, text })}
-        />
-      ) : (
-        <Waiting
-          view={view}
-          line={you.kind === 'audience' ? "You're the audience" : 'Both in'}
-          sub={
-            you.kind === 'audience'
-              ? 'you vote, you judge, you never risk anything. the safest job in comedy.'
-              : "good ones? we'll find out together, in public."
-          }
-        />
-      )
+  function renderPhase(view: ClientView) {
+    switch (phase.name) {
+      case 'lobby':
+        return <Lobby view={view} phase={phase} onStart={() => client.send({ t: 'game.start' })} />
 
-    case 'voting':
-      return (
-        <Vote
-          view={view}
-          phase={phase}
-          offsetMs={offsetMs}
-          onVote={(side: Side) => client.send({ t: 'vote.cast', side })}
-        />
-      )
+      case 'writing':
+        return phase.assignment ? (
+          <Write
+            view={view}
+            phase={phase}
+            offsetMs={offsetMs}
+            onSubmit={(slot, text) => client.send({ t: 'answer.submit', slot, text })}
+          />
+        ) : (
+          <Waiting
+            view={view}
+            line={you.kind === 'audience' ? "You're the audience" : 'Both in'}
+            sub={
+              you.kind === 'audience'
+                ? 'you vote, you judge, you never risk anything. the safest job in comedy.'
+                : "good ones? we'll find out together, in public."
+            }
+          />
+        )
 
-    case 'finaleVoting':
-      return (
-        <FinaleVote
-          view={view}
-          phase={phase}
-          offsetMs={offsetMs}
-          onVote={(entrySeatId, delta) => client.send({ t: 'finale.vote', entrySeatId, delta })}
-        />
-      )
+      case 'voting':
+        return (
+          <Vote
+            view={view}
+            phase={phase}
+            offsetMs={offsetMs}
+            onVote={(side: Side) => client.send({ t: 'vote.cast', side })}
+          />
+        )
 
-    case 'reveal':
-    case 'finaleReveal':
-      return <Waiting view={view} line="Look up" sub="this is the good bit" />
+      case 'finaleVoting':
+        return (
+          <FinaleVote
+            view={view}
+            phase={phase}
+            offsetMs={offsetMs}
+            onVote={(entrySeatId, delta) => client.send({ t: 'finale.vote', entrySeatId, delta })}
+          />
+        )
 
-    case 'scoreboard':
-      return (
-        <Waiting
-          view={view}
-          line={`${you.score} points`}
-          sub={you.delta > 0 ? `you gained ${you.delta} that round` : 'you gained nothing. bold.'}
-        />
-      )
+      case 'reveal':
+      case 'finaleReveal':
+        return <Waiting view={view} line="Look up" sub="this is the good bit" />
 
-    case 'winner':
-      return (
-        <Waiting
-          view={view}
-          line={`${you.score} points`}
-          sub="the television has the verdict. it is not kind."
-        />
-      )
+      case 'scoreboard':
+        return (
+          <Waiting
+            view={view}
+            line={`${you.score} points`}
+            sub={you.delta > 0 ? `you gained ${you.delta} that round` : 'you gained nothing. bold.'}
+          />
+        )
+
+      case 'winner':
+        return (
+          <Waiting
+            view={view}
+            line={`${you.score} points`}
+            sub="the television has the verdict. it is not kind."
+          />
+        )
+    }
   }
 }

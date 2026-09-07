@@ -39,6 +39,7 @@ export const ClientMsgSchema = z.discriminatedUnion('t', [
   }),
   z.object({ t: z.literal('settings.open'), open: z.boolean() }),
   z.object({ t: z.literal('game.start') }),
+  z.object({ t: z.literal('room.destroy') }),
   z.object({
     t: z.literal('answer.submit'),
     slot: z.number().int().min(0).max(1),

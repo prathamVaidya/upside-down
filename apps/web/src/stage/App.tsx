@@ -1,5 +1,6 @@
 import { Doug, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
+import { RoomClosed } from '../RoomClosed.tsx'
 import { FinaleReveal, FinaleVoting } from './screens/Finale.tsx'
 import { Idle } from './screens/Idle.tsx'
 import { Reveal } from './screens/Reveal.tsx'
@@ -16,7 +17,9 @@ import { Writing } from './screens/Writing.tsx'
  * or a smart-TV keyboard.
  */
 export function App() {
-  const { view, status, mustReload, offsetMs } = useRoom('stage')
+  const { view, status, mustReload, offsetMs, roomClosed } = useRoom('stage')
+
+  if (roomClosed) return <RoomClosed reason={roomClosed} stage />
 
   if (mustReload) {
     return (

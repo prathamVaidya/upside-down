@@ -24,6 +24,7 @@ export type ClientMsg =
   | { t: 'settings.set'; region: Region; level: ContentLevel }
   | { t: 'settings.open'; open: boolean }
   | { t: 'game.start' }
+  | { t: 'room.destroy' }
   /**
    * `slot` indexes the player's own two assignments. The phone never learns a
    * matchup index or which side it is writing for — that mapping stays server
@@ -59,6 +60,7 @@ export type SoundCue =
 
 /** Everything the server sends. Clients trust the server, so no schema here. */
 export type ServerMsg =
+  | { t: 'room.closed'; reason: string }
   | { t: 'welcome'; v: number; code: RoomCode; seatId: SeatId | null; seatToken: SeatToken | null }
   | { t: 'view'; seq: number; view: ClientView }
   | { t: 'pong'; t0: number; tServer: number }

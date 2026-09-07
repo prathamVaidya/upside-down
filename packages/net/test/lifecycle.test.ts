@@ -23,6 +23,7 @@ afterEach(() => {
   vi.useRealTimers()
   Socket.instances = []
   localStorage.clear()
+  sessionStorage.clear()
 })
 
 it('reopens after effect cleanup and ignores late events from the old socket', () => {
@@ -67,3 +68,37 @@ it('cancels a pending retry when closed and permits a later explicit connection'
   expect(Socket.instances).toHaveLength(2)
   client.close()
 })
+
+it.each(['phone', 'stage'] as const)(
+  'forgets a destroyed room and stops reconnecting on %s',
+  (role) => {
+    vi.useFakeTimers()
+    vi.stubGlobal('WebSocket', Socket)
+    const client = new RoomClient('ws://localhost/ws', role)
+    client.connect()
+    const socket = Socket.instances[0]!
+    socket.open()
+    const receive = (msg: unknown) =>
+      socket.dispatchEvent(
+        new MessageEvent('message', {
+          data: JSON.stringify(msg),
+        }),
+      )
+    receive({ t: 'welcome', code: 'GRUB', seatId: 'host', seatToken: 'secret' })
+    receive({ t: 'room.closed', reason: 'The host destroyed this room.' })
+    expect(client.snapshot()).toMatchObject({
+      view: null,
+      code: null,
+      seatId: null,
+      roomClosed: 'The host destroyed this room.',
+    })
+    expect(localStorage.getItem('ud.code')).toBeNull()
+    expect(sessionStorage.getItem('ud.seat.GRUB')).toBeNull()
+    expect(socket.close).toHaveBeenCalledOnce()
+    socket.dispatchEvent(new Event('close'))
+    client.connect()
+    vi.advanceTimersByTime(60_000)
+    expect(Socket.instances).toHaveLength(1)
+    expect(vi.getTimerCount()).toBe(0)
+  },
+)
