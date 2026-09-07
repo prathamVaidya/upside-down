@@ -87,12 +87,18 @@
   gap: clamp(4px, 0.8vmin, 10px);
   padding: clamp(6px, 1vmin, 12px);
   background: var(--ud-card);
-  border-radius: 14px;
-  box-shadow: var(--ud-lift);
+  border-radius: 22px 26px 20px 28px;
+  box-shadow: var(--ud-top-light-pale), var(--ud-occlude), var(--ud-lift);
+}
+.join__symbol svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .join__scan {
-  font-size: clamp(10px, 1.2vmin, 15px);
-  color: var(--ud-ink-soft);
+  font: 500 clamp(13px, 1.6vmin, 18px) var(--ud-stage-font);
+  color: var(--ud-ink);
+  padding-bottom: 6px;
 }
 
 .code {
