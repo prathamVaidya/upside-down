@@ -1,4 +1,4 @@
-import type { ClientMsg, ClientView, ErrorCode, ServerMsg } from '@ud/protocol'
+import type { ClientMsg, ClientView, ErrorCode, ServerMsg, SoundCue } from '@ud/protocol'
 import { PROTOCOL_VERSION } from '@ud/protocol'
 
 export type Status = 'connecting' | 'open' | 'dropped'
@@ -247,7 +247,7 @@ export class RoomClient {
   }
 
   /** Set by the stage; the phone stays silent, it is a remote control. */
-  onSound: ((cue: string) => void) | null = null
+  onSound: ((cue: SoundCue) => void) | null = null
 
   private startClockSync(): void {
     this.ping()

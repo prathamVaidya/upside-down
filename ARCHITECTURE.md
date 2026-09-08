@@ -27,7 +27,8 @@ Three programs and one shared brain.
                   └─────────────┘
 ```
 
-The stage never receives input. Mockup `2g` puts the start button on the host's phone and `2a`
+The stage never receives gameplay input. Its local sound controls are the exception, because
+browser audio needs a gesture on the stage itself. Mockup `2g` puts the start button on the host's phone and `2a`
 says the host picks the region there too, so the TV is a display surface only. This is a gift —
 TV and cast-browser input is miserable, and now we never need it.
 
@@ -392,9 +393,12 @@ Performance floor is a low-end Android and a five-year-old laptop: animate only 
 
 ### Sound
 
-Stage only — phones stay silent. Web Audio, context unlocked on the host's start tap. The engine
-already emits `{ kind: 'sound', cue }` effects, so audio can land later without game logic moving.
-`content/sound-brief.md` covers deliverable 6 until then.
+Stage only — phones stay silent. The approved synthesized palette plays through Web Audio,
+unlocked by the stage's own Enable sound button, not the host's phone. Mute stops active
+sounds; volume starts at 0.18. Playback is driven by live sound messages, not snapshots, so
+reconnects never replay old cues. Hidden/disconnected stages stop playback; minor-event
+bursts are coalesced and capped. The player is disposed when leaving the room.
+`content/sound-brief.md` records the approved palette and remaining physical-speaker QA.
 
 ---
 

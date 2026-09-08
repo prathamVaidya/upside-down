@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upside Down — sound review</title>
+<style>
+  body { margin: 0 auto; padding: 32px 20px; max-width: 760px; background: #f0e9db; color: #40352c; font: 16px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  p { max-width: 65ch; }
+  button, input { font: inherit; }
+  button { padding: 10px 18px; border: 1px solid #40352c; border-radius: 12px; background: #fbf4e8; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 3px solid #7e97b8; outline-offset: 3px; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 28px 0; }
+  article { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 18px 0; border-top: 1px solid #c9bead; }
+  h2 { font-size: 18px; margin: 0; }
+  article p { margin: 3px 0 0; font-size: 14px; }
+  #status { min-height: 1.5em; }
+</style>
+<h1>Sound check</h1>
+<p>Draft A: soft clay pops and wooden knocks. These are synthesized sketches, not recorded Foley. Nothing is connected to the game.</p>
+<p>Start at a low volume. Review which sounds feel right, which annoy you, and whether the winner deserves more or less drama.</p>
+<div class="controls">
+  <label>Preview volume <input id="volume" type="range" min="0" max="0.5" step="0.01" value="0.18"></label>
+  <button id="stop">Stop sound</button>
+</div>
+<div id="cues"></div>
+<p id="status" role="status">Press Play to hear a cue. Nothing plays automatically.</p>
+<script type="module">
+  const cues = [
+    ['join', 'Player joins', 'A small, friendly pop. Acknowledges arrival without stealing attention.'],
+    ['start', 'Game starts', 'Three rising knocks. A short ready-set-go.'],
+    ['submit', 'Answer submitted', 'A muted tap. Quiet enough for repeated submissions.'],
+    ['vote-land', 'Vote lands', 'A tiny pellet click. The shortest and quietest cue.'],
+    ['flip', 'Answer flips', 'A quick papery swish and a soft landing.'],
+    ['sweep', 'Clean sweep', 'An exaggerated upward wobble with a chunky finish.'],
+    ['round-end', 'Round ends', 'A descending pair of warm notes. Time to look at the scores.'],
+    ['winner', 'Winner revealed', 'A brief toy-instrument fanfare, ending on a satisfied plop.'],
+  ];
+  let context;
+  let master;
+  const active = new Set();
+  const volume = document.querySelector('#volume');
+  const status = document.querySelector('#status');
+  function stop() {
+    for (const source of active) { try { source.stop(); } catch {} }
+    active.clear();
+  }
+  function track(source) {
+    active.add(source);
+    source.onended = () => { active.delete(source); source.disconnect(); };
+  }
+  function note(at, frequency, endFrequency, duration, amplitude = 0.5, type = 'sine') {
+    const oscillator = context.createOscillator();
+    const envelope = context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, at);
+    oscillator.frequency.exponentialRampToValueAtTime(endFrequency, at + duration);
+    envelope.gain.setValueAtTime(0, at);
+    envelope.gain.linearRampToValueAtTime(amplitude, at + 0.006);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+    oscillator.connect(envelope).connect(master);
+    track(oscillator);
+    oscillator.start(at);
+    oscillator.stop(at + duration + 0.02);
+  }
+  function rustle(at, duration, amplitude = 0.2) {
+    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+    const data = buffer.getChannelData(0);
+    let seed = 42;
+    for (let i = 0; i < data.length; i++) {
+      seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
+      const envelope = Math.min(1, i / (context.sampleRate * 0.005)) * (1 - i / data.length) ** 2;
+      data[i] = ((seed >>> 0) / 2147483648 - 1) * envelope;
+    }
+    const source = context.createBufferSource();
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1800;
+    gain.gain.value = amplitude;
+    source.buffer = buffer;
+    source.connect(filter).connect(gain).connect(master);
+    track(source);
+    source.start(at);
+  }
+  async function play(id, label) {
+    try {
+      if (!context) {
+        context = new AudioContext();
+        master = context.createGain();
+        master.connect(context.destination);
+      }
+      await context.resume();
+      stop();
+      master.gain.value = Number(volume.value);
+      const t = context.currentTime + 0.015;
+      switch (id) {
+        case 'join': note(t, 620, 230, 0.14); rustle(t, 0.035, 0.12); break;
+        case 'start': [260, 330, 440].forEach((f, i) => { note(t + i * 0.17, f, f * 0.75, 0.16, 0.45, 'triangle'); rustle(t + i * 0.17, 0.03, 0.1); }); break;
+        case 'submit': note(t, 240, 150, 0.08, 0.25); rustle(t, 0.028, 0.1); break;
+        case 'vote-land': note(t, 780, 340, 0.045, 0.16); rustle(t, 0.02, 0.08); break;
+        case 'flip': rustle(t, 0.14, 0.5); note(t + 0.12, 180, 75, 0.13, 0.45); break;
+        case 'sweep': [230, 350, 520].forEach((f, i) => note(t + i * 0.1, f, f * 1.3, 0.18, 0.4, 'triangle')); note(t + 0.36, 200, 65, 0.25, 0.65); rustle(t + 0.36, 0.08, 0.3); break;
+        case 'round-end': note(t, 392, 385, 0.25, 0.4, 'triangle'); note(t + 0.27, 262, 250, 0.38, 0.4, 'triangle'); break;
+        case 'winner': [262, 330, 392, 523].forEach((f, i) => note(t + i * 0.18, f, f * 0.99, 0.32, 0.36, 'triangle')); note(t + 0.94, 220, 75, 0.22, 0.5); break;
+      }
+      status.textContent = `Preview: ${label}. Replay freely; pressing another cue stops the previous one.`;
+    } catch (error) { status.textContent = `Could not play audio: ${error.message}`; }
+  }
+  volume.addEventListener('input', () => {
+    if (master) master.gain.setTargetAtTime(Number(volume.value), context.currentTime, 0.01);
+  });
+  document.querySelector('#stop').addEventListener('click', () => { stop(); status.textContent = 'Stopped.'; });
+  window.addEventListener('pagehide', () => { stop(); context?.close(); });
+  for (const [id, title, description] of cues) {
+    const row = document.createElement('article');
+    const copy = document.createElement('div');
+    const heading = document.createElement('h2');
+    heading.textContent = title;
+    const detail = document.createElement('p');
+    detail.textContent = description;
+    copy.append(heading, detail);
+    const button = document.createElement('button');
+    button.textContent = 'Play';
+    button.setAttribute('aria-label', `Play ${title}`);
+    button.addEventListener('click', () => play(id, title));
+    row.append(copy, button);
+    document.querySelector('#cues').append(row);
+  }
+</script>
+</html>

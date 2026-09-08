@@ -128,8 +128,11 @@ for the room, every answer on screen, three votes each to spread around.
 Room setup is available from the host's lobby: choose India, UK, US, or Global and one of
 three content levels. Choices appear live on the stage and survive a refresh.
 
-Coming next: expand the regional prompt pools (M3), then the remaining screens and states at
-full fidelity plus sound (M4).
+Stage sound effects are available through **Enable sound** on the stage browser, with mute
+and volume controls. Phones stay silent; each new page load starts with sound off.
+
+Coming next: expand the regional prompt pools (M3), then remaining screen and edge-state
+polish plus physical TV/speaker sound checks (M4).
 
 ## Licence
 
