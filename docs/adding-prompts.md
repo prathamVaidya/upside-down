@@ -36,7 +36,7 @@ The existing level names are:
 
 - **1 — HR approved:** keep the setup suitable for a broad audience or coworkers.
 - **2 — medium roast:** allow more awkward, personal, or pointed setups.
-- **3 — Meet in Hell together:** reserve for the most provocative setups, intended for friends comfortable with that tone.
+- **3 — Burn in Hell:** reserve for the most provocative setups, intended for friends comfortable with that tone.
 
 Levels are cumulative: a level 2 room can draw levels 1 and 2; a level 3 room can draw all three. The level describes the prompt, not a guarantee about what players will write.
 

@@ -52,7 +52,8 @@
 
 .stage {
   height: 100dvh;
-  width: 100vw;
+  /* Percentage width excludes non-overlay scrollbars on compact layouts. */
+  width: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -63,6 +64,21 @@
   position: relative;
   background: var(--ud-table);
   color: var(--ud-ink);
+}
+.stage__brand {
+  position: absolute;
+  top: clamp(16px, 3vmin, 42px);
+}
+.stage-winner {
+  position: absolute;
+  inset: 0;
+}
+.stage :is(.slab__text, .finale-card__text, .row__name, .stage__title) {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.stage :is(.slab, .row__bar, .finale-card) {
+  min-width: 0;
 }
 
 .stage__title {
@@ -271,6 +287,7 @@
  * the whole grid is capped so it cannot sprawl on an ultrawide.
  */
 .finale-grid {
+  grid-template-columns: repeat(var(--finale-columns, 4), minmax(0, 1fr));
   display: grid;
   gap: clamp(8px, 1.4vmin, 20px);
   width: min(1500px, 94vw);
@@ -290,12 +307,7 @@
   font-weight: 500;
   font-size: clamp(13px, 1.9vmin, 26px);
   line-height: 1.28;
-  /* Long answers clamp rather than pushing the grid out of shape. */
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  /* Never hide the punchline; compact layouts can scroll instead. */
 }
 
 .confetti {
@@ -304,4 +316,60 @@
   width: 14px;
   height: 13px;
   border-radius: 50% 50% 46% 54%;
+}
+
+/* Small displays and short landscape windows must retain every answer and control. */
+@media (max-width: 900px), (max-height: 650px) {
+  .stage {
+    height: auto;
+    min-height: 100dvh;
+    overflow: clip visible;
+    padding-top: 76px;
+    padding-bottom: 32px;
+  }
+  .stage-winner {
+    position: relative;
+    inset: auto;
+  }
+  .stage__brand,
+  .stage__corner,
+  .stage__foot {
+    position: static;
+  }
+  .stage__foot {
+    margin-top: 20px;
+  }
+  .stage__shelf,
+  .stage__decoration {
+    display: none;
+  }
+  .finale-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .row__bar {
+    height: auto;
+    min-height: 52px;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-block: 12px;
+  }
+}
+@media (max-width: 520px) {
+  .slabs {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .versus {
+    text-align: center;
+  }
+  .finale-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .stage__title {
+    font-size: 28px;
+  }
+  .stage__sub {
+    overflow-wrap: anywhere;
+  }
 }

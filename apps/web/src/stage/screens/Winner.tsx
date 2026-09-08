@@ -21,7 +21,7 @@ export function Winner({ view, phase }: { view: ClientView; phase: WinnerView })
   const others = phase.rows.filter((r) => r.seatId !== phase.championSeatId)
 
   return (
-    <div className="stage ud-dark" style={{ position: 'absolute', inset: 0 }}>
+    <div className="stage stage-winner ud-dark">
       {CONFETTI.map((c, i) => (
         <div
           // biome-ignore lint/suspicious/noArrayIndexKey: a fixed decorative list

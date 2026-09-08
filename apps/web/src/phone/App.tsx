@@ -70,7 +70,7 @@ export function App() {
     <>
       {renderPhase(view)}
       {you.isHost && (
-        <div style={{ maxWidth: 420, margin: '0 auto', padding: '12px 24px 24px' }}>
+        <div className="phone__host-controls">
           <ClayButton
             seed="destroy-room"
             tone="brick"

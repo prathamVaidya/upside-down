@@ -17,9 +17,18 @@ import { Writing } from './screens/Writing.tsx'
  * browsers require a gesture on the stage itself before audio can play.
  */
 export function App() {
-  const { view, status, mustReload, offsetMs, roomClosed, client } = useRoom('stage')
+  const { view, status, mustReload, offsetMs, roomClosed, client, error } = useRoom('stage')
 
   if (roomClosed) return <RoomClosed reason={roomClosed} stage />
+
+  if (!view && error?.code === 'ROOM_NOT_FOUND') {
+    return (
+      <RoomClosed
+        reason="This room has expired or no longer exists. Create a new room to play again."
+        stage
+      />
+    )
+  }
 
   if (mustReload) {
     return (

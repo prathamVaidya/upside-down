@@ -1,5 +1,6 @@
 import { Blob, Clay, Countdown, Pellet } from '@ud/clay'
 import type { ClientView, ColorRole, FinaleRevealView, FinaleVotingView } from '@ud/protocol'
+import type { CSSProperties } from 'react'
 
 const PELLET_COLORS: ColorRole[] = ['brick', 'sage', 'slate', 'butter']
 
@@ -52,10 +53,7 @@ export function FinaleVoting({
         <Countdown endsAt={view.phaseEndsAt} offsetMs={offsetMs} word="to vote" />
       </div>
 
-      <div
-        className="finale-grid"
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-      >
+      <div className="finale-grid" style={{ '--finale-columns': columns } as CSSProperties}>
         {phase.entries.map((entry, i) => (
           <Clay key={entry.id} seed={`finale-${entry.id}`} tone="card" className="finale-card">
             <div className="finale-card__text">"{entry.text}"</div>
@@ -106,10 +104,7 @@ export function FinaleReveal({ view, phase }: { view: ClientView; phase: FinaleR
         {phase.promptText}
       </h1>
 
-      <div
-        className="finale-grid"
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-      >
+      <div className="finale-grid" style={{ '--finale-columns': columns } as CSSProperties}>
         {phase.entries.map((entry) => (
           <div key={entry.seatId} style={{ position: 'relative' }}>
             <Clay

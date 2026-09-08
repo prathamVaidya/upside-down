@@ -26,15 +26,22 @@ export function Join({
   const submit = () => ready && onJoin(code, name)
 
   return (
-    <div className="phone">
+    <form
+      className="phone"
+      onSubmit={(event) => {
+        event.preventDefault()
+        submit()
+      }}
+    >
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
         <Wordmark size={19} />
       </div>
 
-      <div className="phone__label" style={{ marginTop: 24 }}>
+      <label htmlFor="room-code" className="phone__label" style={{ marginTop: 24 }}>
         the code on the TV
-      </div>
+      </label>
       <input
+        id="room-code"
         className="ud-input codeinput"
         data-testid="code-input"
         value={code}
@@ -47,16 +54,16 @@ export function Join({
         aria-label="room code"
       />
 
-      <div className="phone__label" style={{ marginTop: 12 }}>
+      <label htmlFor="player-name" className="phone__label" style={{ marginTop: 12 }}>
         what do we call you
-      </div>
+      </label>
       <input
+        id="player-name"
         className="ud-input"
         data-testid="name-input"
         style={{ fontSize: 19, fontWeight: 500 }}
         value={name}
         onChange={(e) => setName(e.target.value.slice(0, NAME_MAX))}
-        onKeyDown={(e) => e.key === 'Enter' && submit()}
         maxLength={NAME_MAX}
         aria-label="your name"
       />
@@ -64,7 +71,11 @@ export function Join({
         {NAME_MAX} letters max. choose wisely, it's permanent.
       </div>
 
-      {error && <div className="error">{error.message}</div>}
+      {error && (
+        <div className="error" role="alert">
+          {error.message}
+        </div>
+      )}
 
       <div className="phone__spacer" />
 
@@ -73,7 +84,7 @@ export function Join({
         data-testid="join"
         tone="brick"
         disabled={!ready}
-        onClick={submit}
+        type="submit"
       >
         get in
       </ClayButton>
@@ -87,6 +98,6 @@ export function Join({
         someone reads a prompt out on the telly, two people answer it, everyone else decides who was
         funnier. that's the whole game.
       </Clay>
-    </div>
+    </form>
   )
 }

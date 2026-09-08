@@ -40,5 +40,5 @@ it('shows the same selections on the stage without interactive controls', () => 
   const selected = [...container.querySelectorAll('[data-selected="true"]')]
   expect(selected).toHaveLength(2)
   expect(selected[0]!.textContent).toContain('US')
-  expect(selected[1]!.textContent).toContain('Meet in Hell together')
+  expect(selected[1]!.textContent).toContain('Burn in Hell')
 })

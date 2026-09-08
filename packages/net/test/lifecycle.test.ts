@@ -69,6 +69,24 @@ it('cancels a pending retry when closed and permits a later explicit connection'
   client.close()
 })
 
+it('clears a stale stored seat when resume fails before welcome', () => {
+  vi.stubGlobal('WebSocket', Socket)
+  localStorage.setItem('ud.code', 'GRUB')
+  sessionStorage.setItem('ud.seat.GRUB', 'old-token')
+  const client = new RoomClient('ws://localhost/ws', 'phone')
+  client.connect()
+  Socket.instances[0]!.open()
+  Socket.instances[0]!.dispatchEvent(
+    new MessageEvent('message', {
+      data: JSON.stringify({ t: 'error', code: 'ROOM_NOT_FOUND', message: 'Room expired.' }),
+    }),
+  )
+  expect(sessionStorage.getItem('ud.seat.GRUB')).toBeNull()
+  expect(localStorage.getItem('ud.code')).toBeNull()
+  expect(client.snapshot().view).toBeNull()
+  client.close()
+})
+
 it.each(['phone', 'stage'] as const)(
   'forgets a destroyed room and stops reconnecting on %s',
   (role) => {

@@ -34,7 +34,7 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
 
   return (
     <>
-      <div style={{ position: 'absolute', top: 'clamp(16px,3vmin,42px)' }}>
+      <div className="stage__brand">
         <Wordmark size={28} />
       </div>
 
@@ -92,7 +92,10 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
       </div>
 
       <div className="stage__shelf" />
-      <div style={{ position: 'absolute', bottom: 'clamp(34px,7vmin,80px)' }}>
+      <div
+        className="stage__decoration"
+        style={{ position: 'absolute', bottom: 'clamp(34px,7vmin,80px)' }}
+      >
         <Doug pose="idle" size={94} />
       </div>
 
