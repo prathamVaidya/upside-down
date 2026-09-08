@@ -25,5 +25,5 @@ export type ShapeId = (typeof SHAPE_IDS)[number]
 export const REGIONS = ['global', 'in', 'uk', 'us'] as const
 export type Region = (typeof REGIONS)[number]
 
-/** 1 HR approved · 2 medium roast · 3 Meet in Hell together */
+/** 1 HR approved · 2 medium roast · 3 Burn in Hell */
 export type ContentLevel = 1 | 2 | 3

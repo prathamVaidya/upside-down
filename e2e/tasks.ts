@@ -12,6 +12,7 @@
  * of real clients too.
  */
 import type { ClientView } from '@ud/protocol'
+import { samplePhases } from '../packages/engine/test/drive.ts'
 import {
   type Bot,
   NAMES,
@@ -33,6 +34,28 @@ const roomOf = (code: string): Room => {
 
 export function makeTasks(wsUrl: string) {
   return {
+    'screens:samples'() {
+      const samples = [...samplePhases(8), ...samplePhases(8, true)]
+      const phones = samples.map((sample, i) => ({
+        label: `${sample.phase}-${i}`,
+        view: sample.seats[0]!.view,
+      }))
+      const voting = samples.find((sample) => sample.phase === 'voting')!
+      const voter = voting.seats.find(
+        ({ view }) => view.phase.name === 'voting' && !view.phase.yourSide,
+      )!
+      phones.push({ label: 'voting-ballot', view: voter.view })
+      const lobby = samples[0]!.seats[0]!.view
+      if (lobby.phase.name === 'lobby')
+        phones.push({
+          label: 'setup',
+          view: { ...lobby, phase: { ...lobby.phase, settingsOpen: true } },
+        })
+      return {
+        phones,
+        stages: samples.map((sample, i) => ({ label: `${sample.phase}-${i}`, view: sample.stage })),
+      }
+    },
     async 'bots:settings'({
       code,
       region,

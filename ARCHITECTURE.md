@@ -118,9 +118,8 @@ The original plan had these as two separate Vite apps, on the theory that a rout
 the confetti system and Doug's pose set to every phone at the party. Measured, that difference was
 about 4KB — React dominates both bundles, so the split bought nothing. What survives is narrower:
 
-- **Separate `<head>`s.** The phone needs `maximum-scale=1, viewport-fit=cover` so iOS does not
-  zoom when the keyboard opens during writing. That is wrong on a television, and setting viewport
-  meta at runtime before first paint is unreliable in Safari.
+- **Separate `<head>`s.** The phone uses `viewport-fit=cover` with safe-area padding. Inputs
+  use at least 16px text to avoid iOS focus zoom, while pinch zoom remains available.
 - **Separate cache lifetimes.** Changing the winner screen does not invalidate the phone's chunk.
 
 Two *apps* also cost something real: development served the surfaces on two ports while production
@@ -131,6 +130,10 @@ routing table, and CI asserts the two documents differ.
 The design separation the brief asks for — a stage and a remote control, not one responsive layout
 — is a component-level discipline, enforced by `src/stage` and `src/phone` being separate trees
 with separate CSS. It never needed separate build targets.
+
+Both surfaces adapt to their viewport: the phone UI becomes a centered, 600px-wide panel on
+desktop, while compact stage layouts scroll and stack content instead of clipping it. Browser
+fixtures cover game phases at narrow and desktop widths, long answers, and reduced motion.
 
 ### Serving
 
@@ -325,7 +328,7 @@ Content is files in the repo:
 # content/prompts/in.yaml
 - id: in-0001
   text: The worst thing to say in a job interview
-  level: 2                    # 1 HR approved · 2 medium roast · 3 Meet in Hell together
+  level: 2                    # 1 HR approved · 2 medium roast · 3 Burn in Hell
   lang: en
 ```
 

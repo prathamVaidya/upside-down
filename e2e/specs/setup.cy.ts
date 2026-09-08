@@ -15,7 +15,7 @@ describe('room setup', () => {
       cy.get('[data-testid="setup-done"]').click()
       cy.get('[data-testid="settings-summary"]')
         .should('contain', 'India')
-        .and('contain', 'Meet in Hell together')
+        .and('contain', 'Burn in Hell')
       cy.task('bots:seat', { code, count: 2 })
       cy.get('[data-testid="start"]').click()
       cy.phase('writing')

@@ -91,7 +91,7 @@ Prompts live in `content/prompts/*.yaml`, one file per region, and are CC0. Add 
 - { id: uk-016, level: 2, text: The worst thing to admit on a night bus }
 ```
 
-`level` is 1 (HR approved), 2 (medium roast) or 3 (Meet in Hell together). Keep it under 80
+`level` is 1 (HR approved), 2 (medium roast) or 3 (Burn in Hell). Keep it under 80
 characters — it has to survive both a phone at 19px and a living room at three metres. Then:
 
 ```sh
@@ -128,11 +128,15 @@ for the room, every answer on screen, three votes each to spread around.
 Room setup is available from the host's lobby: choose India, UK, US, or Global and one of
 three content levels. Choices appear live on the stage and survive a refresh.
 
-Stage sound effects are available through **Enable sound** on the stage browser, with mute
+Stage sound effects are available through the speaker icon on the stage browser, with mute
 and volume controls. Phones stay silent; each new page load starts with sound off.
 
-Coming next: expand the regional prompt pools (M3), then remaining screen and edge-state
-polish plus physical TV/speaker sound checks (M4).
+The player UI supports narrow phones and centered desktop layouts. Compact stages scroll rather
+than clip content, and expired rooms offer a clear recovery action. Automated browser coverage
+includes these layouts, reconnection, room destruction, long answers, and reduced motion.
+
+Still pending: expand the regional prompt pools (M3), remaining visual polish, and physical
+phone/TV/speaker checks (M4).
 
 ## Licence
 

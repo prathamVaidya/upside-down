@@ -17,7 +17,7 @@ export const REGIONS = [
 export const LEVELS = [
   { value: 1, label: 'HR approved', hint: 'Keep it office-safe', tone: 'sage' },
   { value: 2, label: 'Medium roast', hint: 'A little less employable', tone: 'butter' },
-  { value: 3, label: 'Meet in Hell together', hint: 'You picked your audience', tone: 'brick' },
+  { value: 3, label: 'Burn in Hell', hint: 'You picked your audience', tone: 'brick' },
 ] as const
 
 export function settingsLabel(settings: LobbyView['settings']): string {

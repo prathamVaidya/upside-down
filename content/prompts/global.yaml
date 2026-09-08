@@ -1,5 +1,5 @@
 # Prompts that should land anywhere. Mixed into every deck regardless of region.
-# level: 1 HR approved · 2 medium roast · 3 Meet in Hell together
+# level: 1 HR approved · 2 medium roast · 3 Burn in Hell
 region: global
 prompts:
   - { id: g-001, level: 1, text: The worst thing to say in a job interview }

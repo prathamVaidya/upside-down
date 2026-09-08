@@ -61,7 +61,10 @@ export function Writing({
       </p>
 
       <div className="stage__shelf" />
-      <div style={{ position: 'absolute', bottom: 'clamp(30px,6vmin,72px)', textAlign: 'center' }}>
+      <div
+        className="stage__decoration"
+        style={{ position: 'absolute', bottom: 'clamp(30px,6vmin,72px)', textAlign: 'center' }}
+      >
         <Doug pose="watching" size={90} />
         <div style={{ fontSize: 'clamp(10px,1.3vmin,16px)', color: 'var(--ud-ink-faint)' }}>
           Doug is not reading your answer

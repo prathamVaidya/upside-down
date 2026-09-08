@@ -3,12 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- viewport-fit=cover so the layout reaches under the home indicator;
-         maximum-scale=1 so iOS does not zoom the page when the keyboard opens
-         on the writing screen. -->
+    <!-- Keep pinch zoom available; inputs use at least 16px to avoid focus zoom. -->
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta name="theme-color" content="#F0E9DB" />
     <title>Join a room · Upside Down</title>
@@ -19,7 +17,7 @@
       rel="stylesheet"
     />
   </head>
-  <body>
+  <body class="phone-page">
     <div id="root"></div>
     <script type="module" src="/src/phone/main.tsx"></script>
   </body>

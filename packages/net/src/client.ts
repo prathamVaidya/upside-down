@@ -229,8 +229,10 @@ export class RoomClient {
         // A seat the server does not recognise is worse than useless — drop it
         // so the next attempt starts clean rather than looping on a dead token.
         if (msg.code === 'SEAT_NOT_FOUND' || msg.code === 'ROOM_NOT_FOUND') {
-          if (this.snap.code) this.forgetSeat(this.snap.code)
+          const code = this.snap.code ?? this.storedCode
+          if (code) this.forgetSeat(code)
           this.storedCode = null
+          this.pendingName = null
           this.patch({ code: null, seatId: null, view: null })
         }
         break

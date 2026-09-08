@@ -8,7 +8,15 @@
  * If a screen in here is interesting to look at, it is wrong.
  */
 
+.phone-page {
+  --phone-width: 600px;
+}
 .phone {
+  width: 100%;
+  max-width: var(--phone-width, 600px);
+  margin-inline: auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
   /* dvh, not vh — the software keyboard takes half the screen during writing
      and vh would push the submit button underneath it. */
   min-height: 100dvh;
@@ -18,6 +26,53 @@
   gap: 14px;
   background: var(--ud-table);
   color: var(--ud-ink);
+}
+
+.phone > * {
+  min-width: 0;
+}
+.phone input,
+.phone textarea {
+  max-width: 100%;
+}
+.phone textarea {
+  resize: vertical;
+}
+.phone__host-controls {
+  max-width: var(--phone-width);
+  margin: 0 auto;
+  padding: 12px 20px 24px;
+}
+.phone__host-controls button {
+  width: 100%;
+}
+.phone-page #root:has(.phone__host-controls) > .phone {
+  min-height: calc(100dvh - 108px);
+}
+.phone-page :focus-visible {
+  outline: 3px solid var(--ud-ink);
+  outline-offset: 4px;
+}
+
+@media (min-width: 720px) {
+  .phone-page {
+    background: var(--ud-shelf);
+  }
+  .phone-page #root {
+    padding: 32px 24px;
+  }
+  .phone {
+    min-height: min(760px, calc(100dvh - 64px));
+    padding: 32px;
+    border-radius: 28px 34px 26px 32px;
+    box-shadow: var(--ud-lift);
+  }
+  .phone-page #root:has(.phone__host-controls) > .phone {
+    min-height: min(700px, calc(100dvh - 172px));
+  }
+  .phone__host-controls {
+    padding: 24px 32px 8px;
+  }
 }
 
 .phone__spacer {
@@ -70,6 +125,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* The two voting targets. Big enough to hit without looking. */
@@ -100,6 +156,10 @@
   align-items: center;
   gap: 12px;
   font-size: 15px;
+  flex-wrap: wrap;
+}
+.seatlist__row > :first-child {
+  flex-shrink: 0;
 }
 
 .codeinput {
@@ -133,7 +193,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  overflow-y: auto;
+  overflow: visible;
   flex: 1;
   padding: 4px 2px 8px;
   /* Room to scroll past the last row with a thumb at the bottom of the screen. */
@@ -191,4 +251,31 @@
   font-size: 13px;
   color: #8f3f2c;
   text-align: center;
+}
+
+@media (max-width: 380px) {
+  .ballot__row {
+    flex-wrap: wrap;
+  }
+  .ballot__text {
+    flex: 1 0 100%;
+  }
+  .ballot__stepper {
+    margin-left: auto;
+  }
+}
+
+@media (min-width: 720px) {
+  .phone__title {
+    font-size: 28px;
+  }
+  .phone__prompt:not(.phone__prompt--sub) {
+    font-size: 24px;
+  }
+  .phone__label {
+    font-size: 15px;
+  }
+  .phone__hint {
+    font-size: 13px;
+  }
 }
