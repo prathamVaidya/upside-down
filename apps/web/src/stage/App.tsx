@@ -1,6 +1,7 @@
 import { Doug, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
 import { RoomClosed } from '../RoomClosed.tsx'
+import { SoundControls } from './SoundControls.tsx'
 import { FinaleReveal, FinaleVoting } from './screens/Finale.tsx'
 import { Idle } from './screens/Idle.tsx'
 import { Reveal } from './screens/Reveal.tsx'
@@ -12,12 +13,11 @@ import { Writing } from './screens/Writing.tsx'
 /**
  * The television.
  *
- * One idea on screen at a time, and no input of any kind — the host drives
- * everything from their phone, so this never needs a remote control, a cursor,
- * or a smart-TV keyboard.
+ * The host drives gameplay from their phone. Sound is the one local control:
+ * browsers require a gesture on the stage itself before audio can play.
  */
 export function App() {
-  const { view, status, mustReload, offsetMs, roomClosed } = useRoom('stage')
+  const { view, status, mustReload, offsetMs, roomClosed, client } = useRoom('stage')
 
   if (roomClosed) return <RoomClosed reason={roomClosed} stage />
 
@@ -47,6 +47,7 @@ export function App() {
 
   return (
     <div className="stage" data-testid="stage" data-phase={phase.name} data-round={view.round}>
+      <SoundControls client={client} />
       {status === 'dropped' && (
         <div
           style={{
