@@ -52,7 +52,8 @@
 
 .stage {
   height: 100dvh;
-  width: 100vw;
+  /* Percentage width excludes non-overlay scrollbars on compact layouts. */
+  width: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
