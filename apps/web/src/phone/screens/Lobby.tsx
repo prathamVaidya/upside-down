@@ -25,7 +25,9 @@ export function Lobby({
   if (isHost && phase.settingsOpen) {
     return (
       <div className="phone">
-        <p className="phone__label">Room {view.code} · everyone can see your choices</p>
+        <p data-replay-public="true" className="phone__label">
+          Room {view.code} · everyone can see your choices
+        </p>
         <RoomSetup settings={phase.settings} onChange={onSettingsChange} />
         <p className="phone__hint">Changes are saved as you pick.</p>
         <ClayButton
@@ -42,7 +44,7 @@ export function Lobby({
 
   return (
     <div className="phone">
-      <div className="phone__label" style={{ textAlign: 'center' }}>
+      <div data-replay-public="true" className="phone__label" style={{ textAlign: 'center' }}>
         room {view.code}
         {isHost ? " · you're the host" : ''}
       </div>

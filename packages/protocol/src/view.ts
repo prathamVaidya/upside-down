@@ -9,6 +9,8 @@ import type { ColorRole, ContentLevel, Region, RoomCode, SeatId, ShapeId, Side }
  * hidden by the UI. See `project()` in @ud/engine.
  */
 export type ClientView = {
+  /** Optional for compatibility with clients/servers deployed independently. */
+  replay?: { roomId: string; gameId: string | null; submittedAnswersVisible: boolean }
   code: RoomCode
   /** Server clock at send time; clients correct their countdown against it. */
   serverNow: number

@@ -2,10 +2,12 @@ import type { Ctx, Effect, EngineConfig, Event, RoomState } from '@ud/engine'
 import { createRoom, DEFAULT_CONFIG, project, reduce } from '@ud/engine'
 import { ctxAt } from '@ud/engine/bootstrap'
 import type { RoomCode, SeatId, ServerMsg } from '@ud/protocol'
+import { lifecycleEvents, scoreSummary } from './lifecycle.ts'
 import { telemetry } from './telemetry.ts'
 
 /** Anything that can receive messages. Abstracted so tests need no sockets. */
 export type Client = {
+  connectionId?: string
   /** Null until the client identifies — the stage never gets one. */
   seatId: SeatId | null
   isStage: boolean
@@ -22,10 +24,15 @@ export type Client = {
  */
 export class Room {
   readonly instanceId = crypto.randomUUID()
+  private gameId: string | null = null
+  private answerConsent = new Set<SeatId>()
   state: RoomState
   clients = new Set<Client>()
   private timers = new Set<ReturnType<typeof setTimeout>>()
   private seq = 0
+  private actionSeq = 0
+  private gameStartedAt: number | null = null
+  private roundStartedAt: number | null = null
   destroyed = false
   lastActivityAt: number
 
@@ -39,11 +46,17 @@ export class Room {
   telemetryContext() {
     return {
       room_id: this.instanceId,
+      game_id: this.gameId ?? undefined,
       room_code: this.state.code,
       round: this.state.round,
       phase: this.state.phase,
       player_count: this.state.seats.filter((s) => s.kind === 'player').length,
       connected_count: this.clients.size,
+      connected_player_count: this.state.seats.filter((s) => s.kind === 'player' && s.connected)
+        .length,
+      matchup_index: this.state.finale ? undefined : this.state.matchupIndex,
+      prompt_id:
+        this.state.finale?.promptId ?? this.state.matchups[this.state.matchupIndex]?.promptId,
       region: this.state.settings.region,
       content_level: this.state.settings.level,
     }
@@ -57,6 +70,7 @@ export class Room {
     if (this.destroyed) return
     const start = performance.now()
     const previous = this.state
+    const actionSeq = ++this.actionSeq
     let outcome: 'ok' | 'rejected' | 'ignored' | 'error' = 'ok'
     let errorCode: string | undefined
     try {
@@ -70,6 +84,25 @@ export class Room {
       }
       this.state = state
       this.lastActivityAt = Date.now()
+      if (previous.phase === 'lobby' && state.phase !== 'lobby') {
+        this.gameStartedAt = Date.now()
+        this.gameId = crypto.randomUUID()
+      }
+      if (previous.round !== state.round) this.roundStartedAt = Date.now()
+      for (const derived of lifecycleEvents(previous, state)) {
+        telemetry.emit({
+          ...this.telemetryContext(),
+          previous_phase: previous.phase,
+          previous_round: previous.round,
+          action_seq: actionSeq,
+          trigger: event.type,
+          game_duration_ms:
+            this.gameStartedAt === null ? undefined : Date.now() - this.gameStartedAt,
+          round_duration_ms:
+            this.roundStartedAt === null ? undefined : Date.now() - this.roundStartedAt,
+          ...derived,
+        })
+      }
       this.run(effects)
     } catch (error) {
       outcome = 'error'
@@ -80,6 +113,9 @@ export class Room {
         event: event.type,
         ...this.telemetryContext(),
         previous_phase: previous.phase,
+        previous_round: previous.round,
+        action_seq: actionSeq,
+        actor_id: 'seatId' in event ? event.seatId : undefined,
         outcome,
         error_code: errorCode,
         duration_ms: performance.now() - start,
@@ -138,18 +174,46 @@ export class Room {
     const now = Date.now()
     this.seq++
     for (const client of this.clients) {
-      client.send({ t: 'view', seq: this.seq, view: project(this.state, client.seatId, now) })
+      const view = project(this.state, client.seatId, now)
+      const players = this.state.seats.filter((s) => s.kind === 'player')
+      view.replay = {
+        roomId: this.instanceId,
+        gameId: this.gameId,
+        submittedAnswersVisible:
+          players.length > 0 && players.every((s) => this.answerConsent.has(s.id)),
+      }
+      client.send({ t: 'view', seq: this.seq, view })
     }
   }
 
-  add(client: Client): void {
-    this.clients.add(client)
-    telemetry.emit({ event: 'connection.attached', ...this.telemetryContext() })
+  setAnswerConsent(seatId: SeatId, allowed: boolean): void {
+    if (this.destroyed || !this.state.seats.some((s) => s.id === seatId)) return
+    if (this.answerConsent.has(seatId) === allowed) return
+    if (allowed) this.answerConsent.add(seatId)
+    else this.answerConsent.delete(seatId)
+    this.broadcast()
   }
 
-  remove(client: Client): void {
-    this.clients.delete(client)
-    telemetry.emit({ event: 'connection.detached', ...this.telemetryContext() })
+  add(client: Client): void {
+    client.connectionId ??= crypto.randomUUID()
+    this.clients.add(client)
+    telemetry.emit({
+      event: 'connection.attached',
+      ...this.telemetryContext(),
+      ...connectionContext(client),
+    })
+  }
+
+  remove(client: Client, closeCode?: number): void {
+    if (!this.clients.delete(client)) return
+    // Fail closed while a player is offline; reconnect resends their current consent.
+    if (client.seatId) this.answerConsent.delete(client.seatId)
+    telemetry.emit({
+      event: 'connection.detached',
+      ...this.telemetryContext(),
+      ...connectionContext(client),
+      close_code: closeCode,
+    })
     if (client.seatId) this.dispatch({ type: 'seat.disconnect', seatId: client.seatId })
   }
 
@@ -157,17 +221,44 @@ export class Room {
     return this.clients.size === 0
   }
 
-  destroy(reason = 'This room has expired.'): void {
+  destroy(
+    reason = 'This room has expired.',
+    cause: 'host' | 'idle_timeout' | 'max_age' | 'server_shutdown' = reason ===
+    'This room has expired.'
+      ? 'idle_timeout'
+      : 'host',
+  ): void {
     if (this.destroyed) return
     this.destroyed = true
+    if (this.gameStartedAt !== null && !this.state.ended)
+      telemetry.emit({
+        event: 'game.aborted',
+        ...this.telemetryContext(),
+        reason: cause,
+        game_duration_ms: Date.now() - this.gameStartedAt,
+        scores: scoreSummary(this.state),
+      })
     telemetry.emit({
       event: 'room.closed',
       ...this.telemetryContext(),
-      close_reason: reason === 'This room has expired.' ? 'expired' : 'host',
+      close_reason: cause === 'host' ? 'host' : cause === 'server_shutdown' ? undefined : 'expired',
+      reason: cause,
     })
     for (const t of this.timers) clearTimeout(t)
     this.timers.clear()
     for (const client of this.clients) client.send({ t: 'room.closed', reason })
     this.clients.clear()
+  }
+}
+
+export function connectionContext(client: Client) {
+  return {
+    connection_id: client.connectionId,
+    actor_id: client.seatId ?? undefined,
+    connection_type: client.isStage
+      ? ('stage' as const)
+      : client.seatId
+        ? ('phone' as const)
+        : ('unbound' as const),
   }
 }

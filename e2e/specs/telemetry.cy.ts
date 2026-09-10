@@ -24,7 +24,7 @@ describe('optional diagnostics', () => {
     cy.viewport(320, 568)
     cy.visit('/play')
     cy.get('.diagnostics summary').click()
-    cy.contains('All text and inputs are hidden').should('be.visible')
+    cy.contains('Names and unfinished drafts stay hidden').should('be.visible')
     cy.then(() => expect(requests).to.equal(0))
     cy.screenshot('diagnostics-consent-320')
     cy.contains('button', 'Allow diagnostics').click()

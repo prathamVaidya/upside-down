@@ -2,6 +2,7 @@
 export type WideEvent = {
   event: string
   room_id?: string
+  game_id?: string
   room_code?: string
   round?: number
   phase?: string
@@ -15,6 +16,34 @@ export type WideEvent = {
   duration_ms?: number
   deadline_lag_ms?: number
   close_reason?: 'host' | 'expired'
+  reason?: string
+  actor_id?: string
+  connection_id?: string
+  connection_type?: 'stage' | 'phone' | 'unbound'
+  close_code?: number
+  previous_host_id?: string | null
+  host_id?: string | null
+  connected_player_count?: number
+  previous_round?: number
+  action_seq?: number
+  matchup_index?: number
+  prompt_id?: string
+  trigger?: string
+  game_duration_ms?: number
+  round_duration_ms?: number
+  fallback_count?: number
+  missing_votes?: number
+  votes_a?: number
+  votes_b?: number
+  points_a?: number
+  points_b?: number
+  author_a?: string
+  author_b?: string
+  sweep?: boolean
+  winner_ids?: string[]
+  scores?: { player_id: string; score: number; delta: number; sweeps: number }[]
+  entries?: { player_id: string; votes: number; points: number; fallback: boolean }[]
+  room_count?: number
 }
 
 type Options = {
@@ -31,6 +60,8 @@ export function createTelemetry(options: Options) {
   let sending: Promise<void> | null = null
   let timer: ReturnType<typeof setInterval> | undefined
   let dropped = 0
+  let failedBatches = 0
+  let lastSuccessAt: string | null = null
   const enabled = Boolean(options.token && options.dataset)
   const fetcher = options.fetcher ?? fetch
 
@@ -75,9 +106,12 @@ export function createTelemetry(options: Options) {
         if (!response.ok) throw new Error('ingest failed')
         const result = (await response.json()) as { failed?: number }
         dropped += result.failed ?? 0
+        if (result.failed) failedBatches++
+        else lastSuccessAt = new Date().toISOString()
       } catch {
         // No unbounded retries, no response bodies or credentials in logs.
         dropped += batch.length
+        failedBatches++
       } finally {
         sending = null
       }
@@ -92,7 +126,12 @@ export function createTelemetry(options: Options) {
     while (queue.length) await flush()
   }
 
-  return { emit, flush, close, stats: () => ({ queued: queue.length, dropped, enabled }) }
+  return {
+    emit,
+    flush,
+    close,
+    stats: () => ({ queued: queue.length, dropped, enabled, failedBatches, lastSuccessAt }),
+  }
 }
 
 export const telemetry = createTelemetry({

@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ServerMsg } from '@ud/protocol'
+import { connectionContext } from './room.ts'
 import { Rooms } from './rooms.ts'
 import { type Connection, handleMessage } from './socket.ts'
 import { telemetry } from './telemetry.ts'
@@ -26,14 +27,27 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
 
       if (url.pathname === '/ws') {
         const ok = srv.upgrade(req, {
-          data: { client: { seatId: null, isStage: false, send: () => {} }, room: null },
+          data: {
+            client: {
+              connectionId: crypto.randomUUID(),
+              seatId: null,
+              isStage: false,
+              send: () => {},
+            },
+            room: null,
+          },
         })
         return ok ? undefined : new Response('expected a websocket', { status: 426 })
       }
 
       if (url.pathname === '/health') {
         return Response.json(
-          { ok: true, rooms: rooms.size, activeRoomCount: rooms.activeRoomCount },
+          {
+            ok: true,
+            rooms: rooms.size,
+            activeRoomCount: rooms.activeRoomCount,
+            telemetry: telemetry.stats(),
+          },
           { headers: { 'cache-control': 'no-store' } },
         )
       }
@@ -43,11 +57,13 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
 
     websocket: {
       open(ws) {
+        telemetry.emit({ event: 'connection.opened', ...connectionContext(ws.data.client) })
         ws.data.client.send = (msg: ServerMsg) => {
           if (msg.t === 'error' || msg.t === 'reload') {
             telemetry.emit({
               event: 'socket.rejected',
               ...ws.data.room?.telemetryContext(),
+              ...connectionContext(ws.data.client),
               outcome: 'rejected',
               error_code: msg.t === 'error' ? msg.code : 'PROTOCOL_VERSION',
             })
@@ -55,21 +71,45 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
           try {
             ws.send(JSON.stringify(msg))
           } catch {
-            // The socket went away mid-broadcast. `close` will tidy up.
+            telemetry.emit({
+              event: 'socket.send_failed',
+              ...ws.data.room?.telemetryContext(),
+              ...connectionContext(ws.data.client),
+              outcome: 'error',
+              error_code: 'SOCKET_SEND_FAILED',
+            })
           }
         }
       },
 
       message(ws, raw) {
-        handleMessage(ws.data, rooms, typeof raw === 'string' ? raw : raw.toString())
+        try {
+          handleMessage(ws.data, rooms, typeof raw === 'string' ? raw : raw.toString())
+        } catch (error) {
+          telemetry.emit({
+            event: 'socket.error',
+            ...ws.data.room?.telemetryContext(),
+            ...connectionContext(ws.data.client),
+            outcome: 'error',
+            error_code: 'INTERNAL_ERROR',
+          })
+          throw error
+        }
       },
 
-      close(ws) {
-        ws.data.room?.remove(ws.data.client)
+      close(ws, code) {
+        telemetry.emit({
+          event: 'connection.closed',
+          ...ws.data.room?.telemetryContext(),
+          ...connectionContext(ws.data.client),
+          close_code: code,
+        })
+        ws.data.room?.remove(ws.data.client, code)
       },
     },
   })
 
+  telemetry.emit({ event: 'server.started', room_count: rooms.size })
   return { server, rooms }
 }
 
@@ -114,17 +154,24 @@ function serveStatic(pathname: string): Response {
 }
 
 if (import.meta.main) {
-  const { server } = startServer()
+  const { server, rooms } = startServer()
   console.log(`upside down · http://localhost:${server.port}`)
   console.log(`  phone  http://localhost:${server.port}/play`)
   console.log(`  stage  http://localhost:${server.port}/stage`)
-  process.once('SIGTERM', () => {
+  let stopping = false
+  const shutdown = (signal: string) => {
+    if (stopping) return
+    stopping = true
     // Railway gives shutdown a finite window; do not let telemetry delay it indefinitely.
     const exitTimer = setTimeout(() => process.exit(0), 4000)
+    telemetry.emit({ event: 'server.stopping', reason: signal, room_count: rooms.size })
+    rooms.close()
     server.stop(true)
     void telemetry.close().finally(() => {
       clearTimeout(exitTimer)
       process.exit(0)
     })
-  })
+  }
+  process.once('SIGTERM', () => shutdown('SIGTERM'))
+  process.once('SIGINT', () => shutdown('SIGINT'))
 }

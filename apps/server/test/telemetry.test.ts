@@ -39,7 +39,27 @@ it('swallows delivery failures and counts lost events without retries', async ()
   sink.emit({ event: 'test' })
   await expect(sink.close()).resolves.toBeUndefined()
   expect(sink.stats()).toMatchObject({ queued: 0, dropped: 1 })
+  expect(sink.stats()).toMatchObject({ failedBatches: 1, lastSuccessAt: null })
   expect(fetcher).toHaveBeenCalledTimes(1)
+})
+
+it('surfaces partial ingestion failures and subsequent recovery', async () => {
+  const fetcher = vi
+    .fn()
+    .mockResolvedValueOnce(Response.json({ failed: 1 }))
+    .mockResolvedValueOnce(Response.json({ failed: 0 }))
+  const sink = createTelemetry({ token: 'secret', dataset: 'game', fetcher })
+  sink.emit({ event: 'test' })
+  await sink.flush()
+  expect(sink.stats()).toMatchObject({ dropped: 1, failedBatches: 1, lastSuccessAt: null })
+  sink.emit({ event: 'test' })
+  await sink.close()
+  expect(sink.stats()).toMatchObject({
+    queued: 0,
+    dropped: 1,
+    failedBatches: 1,
+    lastSuccessAt: expect.any(String),
+  })
 })
 
 it('emits contextual room events without tokens, names, answers, or full state', () => {

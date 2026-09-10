@@ -41,7 +41,7 @@ export function FinaleVoting({
         THE FINALE · TRIPLE STAKES
       </Clay>
 
-      <h1 className="stage__title" style={{ maxWidth: '88vw' }}>
+      <h1 data-replay-public="true" className="stage__title" style={{ maxWidth: '88vw' }}>
         {phase.promptText}
       </h1>
 
@@ -56,7 +56,13 @@ export function FinaleVoting({
       <div className="finale-grid" style={{ '--finale-columns': columns } as CSSProperties}>
         {phase.entries.map((entry, i) => (
           <Clay key={entry.id} seed={`finale-${entry.id}`} tone="card" className="finale-card">
-            <div className="finale-card__text">"{entry.text}"</div>
+            <div
+              data-replay-public={view.replay?.submittedAnswersVisible === true}
+              key={String(view.replay?.submittedAnswersVisible)}
+              className="finale-card__text"
+            >
+              "{entry.text}"
+            </div>
             <div className="slab__pellets">
               {Array.from({ length: entry.votes }, (_, v) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: votes are anonymous, so a pellet has no identity beyond where it landed
@@ -98,6 +104,7 @@ export function FinaleReveal({ view, phase }: { view: ClientView; phase: FinaleR
       )}
 
       <h1
+        data-replay-public="true"
         className="stage__title"
         style={{ fontSize: 'clamp(18px,2.8vmin,36px)', maxWidth: '88vw' }}
       >
@@ -112,7 +119,13 @@ export function FinaleReveal({ view, phase }: { view: ClientView; phase: FinaleR
               tone="card"
               className={`finale-card ${entry.won ? 'ud-anim-winflip' : 'ud-anim-loseflip'}`}
             >
-              <div className="finale-card__text">"{entry.text}"</div>
+              <div
+                data-replay-public={view.replay?.submittedAnswersVisible === true}
+                key={String(view.replay?.submittedAnswersVisible)}
+                className="finale-card__text"
+              >
+                "{entry.text}"
+              </div>
               <div
                 className="slab__meta"
                 style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6 }}

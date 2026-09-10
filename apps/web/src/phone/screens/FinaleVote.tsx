@@ -34,7 +34,11 @@ export function FinaleVote({
 
       {/* Every answer below is aimed at this one prompt, and the ballot scrolls
           — so say what the question was before the list of answers to it. */}
-      <p className="phone__prompt phone__prompt--sub" data-testid="vote-prompt">
+      <p
+        data-replay-public="true"
+        className="phone__prompt phone__prompt--sub"
+        data-testid="vote-prompt"
+      >
         {phase.promptText}
       </p>
 
@@ -66,7 +70,13 @@ export function FinaleVote({
             className="ballot__row"
             data-testid="ballot-row"
           >
-            <div className="ballot__text">"{entry.text}"</div>
+            <div
+              data-replay-public={view.replay?.submittedAnswersVisible === true}
+              key={String(view.replay?.submittedAnswersVisible)}
+              className="ballot__text"
+            >
+              "{entry.text}"
+            </div>
             <div className="ballot__stepper">
               <button
                 type="button"
