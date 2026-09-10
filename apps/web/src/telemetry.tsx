@@ -107,7 +107,9 @@ export function initTelemetry() {
                 ? 'stage'
                 : location.pathname === '/'
                   ? 'landing'
-                  : 'phone',
+                  : location.pathname.startsWith('/privacy')
+                    ? 'privacy'
+                    : 'phone',
             })
             publishReplayContext(client)
           },
@@ -239,7 +241,12 @@ export function DiagnosticsConsent() {
       window.removeEventListener('storage', syncConsent)
     }
   }, [])
-  if (!enabled) return null
+  if (!enabled)
+    return (
+      <a className="diagnostics" href="/privacy" target="_blank" rel="noreferrer">
+        Privacy policy
+      </a>
+    )
   const change = () => {
     const next = !consented
     try {
@@ -254,6 +261,11 @@ export function DiagnosticsConsent() {
   return (
     <details className="diagnostics">
       <summary>Privacy & diagnostics</summary>
+      <p>
+        <a href="/privacy" target="_blank" rel="noreferrer">
+          Read the privacy policy
+        </a>
+      </p>
       <p>
         Diagnostics are on by default to help us understand play. PostHog receives errors and
         game-linked replays. All page text and inputs are recorded without masking, including names,

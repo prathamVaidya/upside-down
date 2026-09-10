@@ -2,7 +2,8 @@ describe('optional diagnostics', () => {
   it('keeps telemetry absent in an unconfigured build', function () {
     if (Cypress.env('telemetry')) this.skip()
     cy.visit('/play')
-    cy.get('.diagnostics').should('not.exist')
+    cy.get('.diagnostics summary').should('not.exist')
+    cy.contains('a', 'Privacy policy').should('have.attr', 'href', '/privacy')
     cy.get('[data-testid="join"]').should('be.visible')
   })
 

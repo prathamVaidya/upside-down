@@ -148,7 +148,9 @@ function serveStatic(pathname: string): Response {
     ? join(PUBLIC_DIR, 'stage', 'index.html')
     : isPhone
       ? join(PUBLIC_DIR, 'play', 'index.html')
-      : join(PUBLIC_DIR, 'index.html')
+      : pathname === '/privacy' || pathname === '/privacy/'
+        ? join(PUBLIC_DIR, 'privacy', 'index.html')
+        : join(PUBLIC_DIR, 'index.html')
 
   return new Response(Bun.file(document), { headers: { 'content-type': 'text/html' } })
 }

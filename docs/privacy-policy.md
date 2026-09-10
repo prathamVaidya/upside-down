@@ -2,10 +2,7 @@
 
 Last updated: September 11, 2026
 
-> Publication draft: describes the default-on diagnostics implementation. Before publishing,
-> the operator must supply a legal identity, private contact address, effective date,
-> actual retention periods and processing locations, and review applicable consent requirements.
-> This repository document is not yet a published in-app policy or a claim of legal compliance.
+Effective date: September 11, 2026
 
 ## The short version
 
@@ -85,25 +82,28 @@ unconfigured builds, and ordinary development builds do not enable PostHog recor
 
 We use Railway for hosting, PostHog for browser diagnostics, and Axiom for server diagnostics.
 The intended uses are operating/debugging the game, understanding gameplay and improving it.
-Game participants see content needed to play; diagnostic access should be restricted to
-authorized operators. This document does not authorize public sharing of player replays.
+Game participants see content needed to play. Diagnostic records are intended for authorized
+operators, not public sharing of player replays.
 
 Provider processing depends on the operator's account settings and agreements. See
 [PostHog's privacy policy](https://posthog.com/privacy) and
 [Axiom's privacy policy](https://axiom.co/docs/legal/privacy). Review those agreements and
 settings rather than assuming the application's masking controls cover every provider use.
 
-The application does not enforce a fixed retention period for exported logs or recordings.
-The operator must configure retention/deletion and specify the actual periods here before
-publication. The Axiom exporter targets the US East ingestion endpoint; PostHog's ingestion
-region is configured by the operator. Hosting and provider storage/processing locations
-must be confirmed before making location or international-transfer commitments.
+We retain PostHog session recordings and diagnostic events, and Axiom operational logs, for
+up to **90 days**. Retention is managed through provider settings rather than the game server's
+in-memory room lifecycle. Turning off diagnostics does not immediately delete existing records;
+you can contact us about deletion using the address below.
+
+Our providers may process information outside your country. Axiom uses a US East ingestion
+endpoint; PostHog and Railway processing locations depend on the service configuration and
+provider infrastructure. The provider policies linked above describe their practices.
 
 ## Questions and privacy requests
 
-**Operator:** [add legal/operator name]
+**Operator:** Pratham Vaidya
 
-**Private privacy contact:** [add monitored email address]
+**Privacy contact:** [iamprathamvaidya@gmail.com](mailto:iamprathamvaidya@gmail.com)
 
 Use that private contact for questions or applicable access/deletion requests. Include an
 approximate game date/time and room code if available, but never send a reconnection token.
@@ -112,6 +112,5 @@ require enough information to locate the relevant records and verify the request
 
 ## Changes
 
-The operator should publish material changes before applying them and obtain consent where
-required. A default-on setting and a policy document alone do not establish a lawful basis
-for collection in every jurisdiction. Review this draft before using it as a public policy.
+We will update this page when our practices change and revise the date above. Where required,
+we will provide additional notice or obtain consent before applying material changes.

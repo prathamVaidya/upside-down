@@ -17,6 +17,10 @@
 .diagnostics summary {
   cursor: pointer;
 }
+.diagnostics a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
 .diagnostics p {
   margin: 12px 0;
 }

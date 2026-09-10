@@ -42,6 +42,7 @@ function Landing() {
         <p>3–8 players. About 15 minutes.</p>
         <p>Free to play. No downloads. No accounts.</p>
         <a href="https://github.com/prathamVaidya/upside-down">View on GitHub</a>
+        <a href="/privacy">Privacy policy</a>
       </footer>
     </main>
   )

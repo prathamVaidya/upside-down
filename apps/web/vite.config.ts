@@ -21,6 +21,7 @@ function routes(): Plugin {
         const path = (req.url ?? '/').split('?')[0] ?? '/'
         // The television.
         if (path === '/stage' || path === '/stage/') req.url = '/stage/index.html'
+        else if (path === '/privacy' || path === '/privacy/') req.url = '/privacy/index.html'
         // The QR-code deep link: the phone, with the code pre-filled.
         else if (path === '/play' || path === '/play/' || /^\/r\/[A-Za-z]{4}\/?$/.test(path))
           req.url = '/play/index.html'
@@ -50,7 +51,7 @@ export default defineConfig({
     outDir: r('../server/public'),
     emptyOutDir: true,
     rollupOptions: {
-      // Three documents, one bundle graph. Each surface gets its own <head> — the
+      // Four documents, one bundle graph. Each surface gets its own <head> — the
       // phone needs `maximum-scale=1` so iOS does not zoom when the keyboard
       // opens, which would be wrong on a television — while React and the clay
       // system are emitted once and shared between them.
@@ -58,6 +59,7 @@ export default defineConfig({
         landing: r('./index.html'),
         phone: r('./play/index.html'),
         stage: r('./stage/index.html'),
+        privacy: r('./privacy/index.html'),
       },
     },
   },

@@ -80,8 +80,10 @@ Example query (replace the dataset name if necessary):
    stops recording/capture; **Enable diagnostics** turns it back on. Existing explicit opt-outs
    in `ud.diagnostics.v2` or legacy `ud.diagnostics` are preserved (a newer choice takes precedence).
    If preference storage is inaccessible, diagnostics stay off. Clearing storage restores the
-   default-on behavior. Review and publish [the privacy policy draft](privacy-policy.md) and
-   resolve applicable consent requirements before rolling out default-on recording.
+   default-on behavior. The [privacy policy](privacy-policy.md) is published at `/privacy` and
+   linked from the landing page and diagnostics controls. Publishing it does not replace
+   applicable consent requirements. Keep provider retention settings aligned with the
+   operator-confirmed 90-day policy; the app does not enforce provider deletion itself.
 5. Play a test game and check Session Replay. On a staging/test build, trigger a deliberate
    JavaScript error and verify it appears in Error Tracking with a session link.
 
