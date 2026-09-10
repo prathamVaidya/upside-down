@@ -70,7 +70,7 @@ export class Rooms {
       const idle = room.isEmpty && now - room.lastActivityAt > IDLE_TTL_MS
       const ancient = now - room.state.createdAt > ABSOLUTE_TTL_MS
       if (idle || ancient) {
-        room.destroy()
+        room.destroy('This room has expired.', ancient ? 'max_age' : 'idle_timeout')
         this.byCode.delete(code)
         reaped++
       }
@@ -80,6 +80,14 @@ export class Rooms {
 
   get size(): number {
     return this.byCode.size
+  }
+
+  close(): void {
+    if (this.sweeper) clearInterval(this.sweeper)
+    this.sweeper = null
+    for (const room of this.byCode.values())
+      room.destroy('The server is restarting.', 'server_shutdown')
+    this.byCode.clear()
   }
 
   /** Rooms with at least one connected phone or stage, excluding idle retained rooms. */

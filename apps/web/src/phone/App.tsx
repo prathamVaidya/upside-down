@@ -2,6 +2,7 @@ import { ClayButton, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
 import type { ClientView, Side } from '@ud/protocol'
 import { RoomClosed } from '../RoomClosed.tsx'
+import { useGameReplay } from '../telemetry.tsx'
 import { Dropped } from './screens/Dropped.tsx'
 import { FinaleVote } from './screens/FinaleVote.tsx'
 import { Join } from './screens/Join.tsx'
@@ -19,6 +20,7 @@ function codeFromPath(): string {
 
 export function App() {
   const { view, status, error, offsetMs, mustReload, roomClosed, client, seatId } = useRoom('phone')
+  useGameReplay(client, 'phone')
 
   // Mirrored onto <body> rather than a wrapper div, because each phone screen
   // owns its own root element and a wrapper would break the sticky layouts.

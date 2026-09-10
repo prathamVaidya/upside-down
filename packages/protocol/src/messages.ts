@@ -25,6 +25,7 @@ export type ClientMsg =
   | { t: 'settings.open'; open: boolean }
   | { t: 'game.start' }
   | { t: 'room.destroy' }
+  | { t: 'diagnostics.set'; submittedAnswers: boolean }
   /**
    * `slot` indexes the player's own two assignments. The phone never learns a
    * matchup index or which side it is writing for — that mapping stays server

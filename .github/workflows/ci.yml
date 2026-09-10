@@ -76,6 +76,11 @@ jobs:
           wait-on: http://localhost:3100/health
           wait-on-timeout: 60
 
+      - name: configured diagnostics smoke test (mocked provider)
+        run: |
+          VITE_POSTHOG_KEY=phc_local_test VITE_POSTHOG_HOST=https://telemetry.invalid bun run build
+          UD_E2E_PORT=3101 bunx start-server-and-test 'PORT=3101 bun apps/server/src/index.ts' http://localhost:3101/health 'cypress run --spec e2e/specs/telemetry.cy.ts --env telemetry=true'
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -21,7 +21,7 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
   if (phase.settingsOpen) {
     return (
       <>
-        <p className="stage__sub">
+        <p data-replay-public="true" className="stage__sub">
           Room {view.code} · join at {joinUrl}
         </p>
         <RoomSetup settings={phase.settings} />
@@ -43,7 +43,7 @@ export function Idle({ view, phase }: { view: ClientView; phase: LobbyView }) {
       </p>
 
       <div className="join">
-        <div className="code" data-testid="room-code">
+        <div data-replay-public="true" className="code" data-testid="room-code">
           {letters.map((ch, i) => (
             <Clay
               // The last tile is inked rather than flipped. The joke is everywhere

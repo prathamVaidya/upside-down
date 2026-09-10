@@ -1,6 +1,9 @@
 import { Doug, Wordmark } from '@ud/clay'
 import { createRoot } from 'react-dom/client'
 import './landing.css'
+import { captureReactError, DiagnosticsConsent, initTelemetry } from '../telemetry.tsx'
+
+initTelemetry()
 
 function Landing() {
   return (
@@ -44,4 +47,12 @@ function Landing() {
   )
 }
 
-createRoot(document.getElementById('root')!).render(<Landing />)
+createRoot(document.getElementById('root')!, {
+  onUncaughtError: captureReactError,
+  onCaughtError: captureReactError,
+}).render(
+  <>
+    <Landing />
+    <DiagnosticsConsent />
+  </>,
+)

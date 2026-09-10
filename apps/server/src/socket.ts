@@ -183,6 +183,9 @@ export function handleMessage(conn: Connection, rooms: Rooms, raw: string): void
       }
       rooms.destroy(room)
       return
+    case 'diagnostics.set':
+      if (!client.isStage) room.setAnswerConsent(seatId, msg.submittedAnswers)
+      return
     case 'settings.set':
       room.dispatch({ type: 'settings.set', seatId, region: msg.region, level: msg.level })
       return

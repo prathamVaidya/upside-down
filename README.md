@@ -121,6 +121,10 @@ The design brief and the mockups it was built from are in [`design/`](./design).
 
 ## Status
 
+Optional Axiom backend events and opt-in PostHog errors/session replays are documented in
+[`docs/observability.md`](./docs/observability.md). Both require service configuration;
+gameplay works without either.
+
 The full game loop runs: three rounds over real sockets, with server timers, per-recipient
 redaction and reconnection. Rounds 1 and 2 are head-to-head; round 3 is the finale — one prompt
 for the room, every answer on screen, three votes each to spread around.

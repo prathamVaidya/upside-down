@@ -18,6 +18,7 @@ export function Reveal({ view, phase }: { view: ClientView; phase: RevealView })
       {phase.sweep && <SweepBanner />}
 
       <h1
+        data-replay-public="true"
         className="stage__title"
         style={{ fontSize: phase.sweep ? 'clamp(18px,2.8vmin,34px)' : undefined, maxWidth: '90vw' }}
       >
@@ -91,7 +92,13 @@ function RevealSlab({
         tone="card"
         className={`slab ${won ? 'ud-anim-winflip' : 'ud-anim-loseflip'}`}
       >
-        <div className="slab__text">"{side.text}"</div>
+        <div
+          data-replay-public={view.replay?.submittedAnswersVisible === true}
+          key={String(view.replay?.submittedAnswersVisible)}
+          className="slab__text"
+        >
+          "{side.text}"
+        </div>
         <div
           className="slab__meta ud-anim-tag"
           style={{ display: 'flex', alignItems: 'center', gap: 8 }}

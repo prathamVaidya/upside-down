@@ -66,7 +66,7 @@ function Composer({
         <Countdown endsAt={endsAt} offsetMs={offsetMs} word="to write" />
       </div>
 
-      <p className="phone__prompt" style={{ marginTop: 12 }}>
+      <p data-replay-public="true" className="phone__prompt" style={{ marginTop: 12 }}>
         {assignment.promptText}
       </p>
 

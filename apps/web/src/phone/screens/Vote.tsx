@@ -39,7 +39,11 @@ export function Vote({
 
       {/* Voters who sat out this prompt have not seen it, and a punchline read
           without its setup is just a sentence. */}
-      <p className="phone__prompt phone__prompt--sub" data-testid="vote-prompt">
+      <p
+        data-replay-public="true"
+        className="phone__prompt phone__prompt--sub"
+        data-testid="vote-prompt"
+      >
         {phase.promptText}
       </p>
 
@@ -52,7 +56,12 @@ export function Vote({
         onClick={() => onVote('a')}
         aria-pressed={phase.yourVote === 'a'}
       >
-        "{phase.a.text}"
+        <span
+          key={String(view.replay?.submittedAnswersVisible)}
+          data-replay-public={view.replay?.submittedAnswersVisible === true}
+        >
+          "{phase.a.text}"
+        </span>
       </ClayButton>
 
       <div style={{ textAlign: 'center', color: 'var(--ud-ink-faint)', fontSize: 13 }}>or</div>
@@ -66,7 +75,12 @@ export function Vote({
         onClick={() => onVote('b')}
         aria-pressed={phase.yourVote === 'b'}
       >
-        "{phase.b.text}"
+        <span
+          key={String(view.replay?.submittedAnswersVisible)}
+          data-replay-public={view.replay?.submittedAnswersVisible === true}
+        >
+          "{phase.b.text}"
+        </span>
       </ClayButton>
 
       <div className="phone__hint">{voted ? 'eyes on the TV now.' : 'tap one. no takebacks.'}</div>
@@ -100,12 +114,20 @@ function SittingOut({
       </h1>
       <p className="phone__label">act natural.</p>
 
-      <p className="phone__prompt phone__prompt--sub" data-testid="vote-prompt">
+      <p
+        data-replay-public="true"
+        className="phone__prompt phone__prompt--sub"
+        data-testid="vote-prompt"
+      >
         {phase.promptText}
       </p>
 
       <Clay seed="your-answer" tone="card" style={{ padding: 20, marginTop: 16 }}>
-        <div style={{ fontFamily: 'var(--ud-stage-font)', fontSize: 18, fontWeight: 500 }}>
+        <div
+          data-replay-public={view.replay?.submittedAnswersVisible === true}
+          key={String(view.replay?.submittedAnswersVisible)}
+          style={{ fontFamily: 'var(--ud-stage-font)', fontSize: 18, fontWeight: 500 }}
+        >
           "{yours.text}"
         </div>
         <div style={{ fontSize: 12, color: 'var(--ud-ink-faint)', marginTop: 10 }}>

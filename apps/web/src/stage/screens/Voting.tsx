@@ -25,7 +25,7 @@ export function Voting({
 }) {
   return (
     <>
-      <h1 className="stage__title" style={{ maxWidth: '90vw' }}>
+      <h1 data-replay-public="true" className="stage__title" style={{ maxWidth: '90vw' }}>
         {phase.promptText}
       </h1>
 
@@ -34,9 +34,21 @@ export function Voting({
       </div>
 
       <div className="slabs" style={{ marginTop: '2vmin' }}>
-        <Answer text={phase.a.text} votes={phase.a.votes} tone="brick" seed="slab-a" />
+        <Answer
+          recordable={view.replay?.submittedAnswersVisible === true}
+          text={phase.a.text}
+          votes={phase.a.votes}
+          tone="brick"
+          seed="slab-a"
+        />
         <div className="versus">or</div>
-        <Answer text={phase.b.text} votes={phase.b.votes} tone="slate" seed="slab-b" />
+        <Answer
+          recordable={view.replay?.submittedAnswersVisible === true}
+          text={phase.b.text}
+          votes={phase.b.votes}
+          tone="slate"
+          seed="slab-b"
+        />
       </div>
 
       <p className="stage__foot">
@@ -48,11 +60,13 @@ export function Voting({
 }
 
 function Answer({
+  recordable,
   text,
   votes,
   tone,
   seed,
 }: {
+  recordable: boolean
   text: string
   votes: number
   tone: 'brick' | 'slate'
@@ -60,7 +74,9 @@ function Answer({
 }) {
   return (
     <Clay seed={seed} tone="card" className="slab">
-      <div className="slab__text">"{text}"</div>
+      <div key={String(recordable)} data-replay-public={recordable} className="slab__text">
+        "{text}"
+      </div>
       <div>
         <div className="slab__pellets">
           {Array.from({ length: votes }, (_, i) => (

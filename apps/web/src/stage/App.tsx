@@ -1,6 +1,7 @@
 import { Doug, Wordmark } from '@ud/clay'
 import { useRoom } from '@ud/net'
 import { RoomClosed } from '../RoomClosed.tsx'
+import { useGameReplay } from '../telemetry.tsx'
 import { SoundControls } from './SoundControls.tsx'
 import { FinaleReveal, FinaleVoting } from './screens/Finale.tsx'
 import { Idle } from './screens/Idle.tsx'
@@ -18,6 +19,7 @@ import { Writing } from './screens/Writing.tsx'
  */
 export function App() {
   const { view, status, mustReload, offsetMs, roomClosed, client, error } = useRoom('stage')
+  useGameReplay(client, 'stage')
 
   if (roomClosed) return <RoomClosed reason={roomClosed} stage />
 
