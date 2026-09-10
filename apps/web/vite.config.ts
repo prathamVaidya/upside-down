@@ -31,6 +31,8 @@ function routes(): Plugin {
 }
 
 export default defineConfig({
+  // Shared workspace env file; Vite exposes only VITE_-prefixed values to clients.
+  envDir: r('../../'),
   plugins: [react(), routes()],
   resolve: {
     alias: {

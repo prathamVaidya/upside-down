@@ -1,0 +1,36 @@
+.diagnostics {
+  position: fixed;
+  z-index: 30;
+  bottom: 8px;
+  left: 8px;
+  max-width: min(340px, calc(100% - 16px));
+  border-radius: 14px;
+  background: var(--ud-table);
+  color: var(--ud-ink);
+  font: 13px / 1.4 var(--ud-quiet-font);
+  padding: 8px 12px;
+}
+.diagnostics[open] {
+  box-shadow: var(--ud-lift);
+  padding: 16px;
+}
+.diagnostics summary {
+  cursor: pointer;
+}
+.diagnostics p {
+  margin: 12px 0;
+}
+.diagnostics button {
+  font: inherit;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ud-sage);
+  color: var(--ud-ink);
+  cursor: pointer;
+}
+.diagnostics :focus-visible {
+  outline: 2px solid var(--ud-ink);
+  outline-offset: 3px;
+}

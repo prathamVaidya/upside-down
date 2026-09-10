@@ -16,6 +16,9 @@ COPY tools/botgame/package.json tools/botgame/
 RUN bun install --frozen-lockfile
 
 COPY . .
+# Public browser project token only. AXIOM_TOKEN must remain a runtime secret.
+ARG VITE_POSTHOG_KEY
+ARG VITE_POSTHOG_HOST
 RUN bun run content:check && bun run build
 
 FROM oven/bun:1.3-slim

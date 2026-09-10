@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import type { ServerMsg } from '@ud/protocol'
 import { Rooms } from './rooms.ts'
 import { type Connection, handleMessage } from './socket.ts'
+import { telemetry } from './telemetry.ts'
 
 const PUBLIC_DIR = fileURLToPath(new URL('../public/', import.meta.url))
 
@@ -43,6 +44,14 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
     websocket: {
       open(ws) {
         ws.data.client.send = (msg: ServerMsg) => {
+          if (msg.t === 'error' || msg.t === 'reload') {
+            telemetry.emit({
+              event: 'socket.rejected',
+              ...ws.data.room?.telemetryContext(),
+              outcome: 'rejected',
+              error_code: msg.t === 'error' ? msg.code : 'PROTOCOL_VERSION',
+            })
+          }
           try {
             ws.send(JSON.stringify(msg))
           } catch {
@@ -109,4 +118,13 @@ if (import.meta.main) {
   console.log(`upside down · http://localhost:${server.port}`)
   console.log(`  phone  http://localhost:${server.port}/play`)
   console.log(`  stage  http://localhost:${server.port}/stage`)
+  process.once('SIGTERM', () => {
+    // Railway gives shutdown a finite window; do not let telemetry delay it indefinitely.
+    const exitTimer = setTimeout(() => process.exit(0), 4000)
+    server.stop(true)
+    void telemetry.close().finally(() => {
+      clearTimeout(exitTimer)
+      process.exit(0)
+    })
+  })
 }

@@ -2,6 +2,7 @@ import type { Ctx, Effect, EngineConfig, Event, RoomState } from '@ud/engine'
 import { createRoom, DEFAULT_CONFIG, project, reduce } from '@ud/engine'
 import { ctxAt } from '@ud/engine/bootstrap'
 import type { RoomCode, SeatId, ServerMsg } from '@ud/protocol'
+import { telemetry } from './telemetry.ts'
 
 /** Anything that can receive messages. Abstracted so tests need no sockets. */
 export type Client = {
@@ -20,6 +21,7 @@ export type Client = {
  * rules are testable without it.
  */
 export class Room {
+  readonly instanceId = crypto.randomUUID()
   state: RoomState
   clients = new Set<Client>()
   private timers = new Set<ReturnType<typeof setTimeout>>()
@@ -31,6 +33,20 @@ export class Room {
     const now = Date.now()
     this.state = createRoom(code, now, (Math.random() * 2 ** 31) | 0, config)
     this.lastActivityAt = now
+    telemetry.emit({ event: 'room.created', ...this.telemetryContext() })
+  }
+
+  telemetryContext() {
+    return {
+      room_id: this.instanceId,
+      room_code: this.state.code,
+      round: this.state.round,
+      phase: this.state.phase,
+      player_count: this.state.seats.filter((s) => s.kind === 'player').length,
+      connected_count: this.clients.size,
+      region: this.state.settings.region,
+      content_level: this.state.settings.level,
+    }
   }
 
   private ctx(): Ctx {
@@ -39,10 +55,40 @@ export class Room {
 
   dispatch(event: Event): void {
     if (this.destroyed) return
-    const { state, effects } = reduce(this.state, event, this.ctx())
-    this.state = state
-    this.lastActivityAt = Date.now()
-    this.run(effects)
+    const start = performance.now()
+    const previous = this.state
+    let outcome: 'ok' | 'rejected' | 'ignored' | 'error' = 'ok'
+    let errorCode: string | undefined
+    try {
+      const { state, effects } = reduce(this.state, event, this.ctx())
+      const rejection = effects.find((effect) => effect.kind === 'reject')
+      if (rejection) {
+        outcome = 'rejected'
+        errorCode = rejection.code
+      } else if (event.type === 'deadline' && event.token !== previous.timerToken) {
+        outcome = 'ignored'
+      }
+      this.state = state
+      this.lastActivityAt = Date.now()
+      this.run(effects)
+    } catch (error) {
+      outcome = 'error'
+      errorCode = 'INTERNAL_ERROR'
+      throw error
+    } finally {
+      telemetry.emit({
+        event: event.type,
+        ...this.telemetryContext(),
+        previous_phase: previous.phase,
+        outcome,
+        error_code: errorCode,
+        duration_ms: performance.now() - start,
+        deadline_lag_ms:
+          event.type === 'deadline' && previous.phaseEndsAt !== null
+            ? Math.max(0, Date.now() - previous.phaseEndsAt)
+            : undefined,
+      })
+    }
   }
 
   private run(effects: Effect[]): void {
@@ -98,10 +144,12 @@ export class Room {
 
   add(client: Client): void {
     this.clients.add(client)
+    telemetry.emit({ event: 'connection.attached', ...this.telemetryContext() })
   }
 
   remove(client: Client): void {
     this.clients.delete(client)
+    telemetry.emit({ event: 'connection.detached', ...this.telemetryContext() })
     if (client.seatId) this.dispatch({ type: 'seat.disconnect', seatId: client.seatId })
   }
 
@@ -112,6 +160,11 @@ export class Room {
   destroy(reason = 'This room has expired.'): void {
     if (this.destroyed) return
     this.destroyed = true
+    telemetry.emit({
+      event: 'room.closed',
+      ...this.telemetryContext(),
+      close_reason: reason === 'This room has expired.' ? 'expired' : 'host',
+    })
     for (const t of this.timers) clearTimeout(t)
     this.timers.clear()
     for (const client of this.clients) client.send({ t: 'room.closed', reason })
