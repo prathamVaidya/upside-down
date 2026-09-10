@@ -6,7 +6,7 @@ describe('optional diagnostics', () => {
     cy.get('[data-testid="join"]').should('be.visible')
   })
 
-  it('keeps configured diagnostics opt-in and usable on narrow screens', function () {
+  it('starts configured diagnostics by default and preserves opt-out across reload', function () {
     if (!Cypress.env('telemetry')) this.skip()
     let requests = 0
     cy.intercept('https://telemetry.invalid/**', (req) => {
@@ -24,16 +24,18 @@ describe('optional diagnostics', () => {
     cy.viewport(320, 568)
     cy.visit('/play')
     cy.get('.diagnostics summary').click()
-    cy.contains('Names and unfinished drafts stay hidden').should('be.visible')
-    cy.then(() => expect(requests).to.equal(0))
+    cy.contains('Diagnostics are on by default').should('be.visible')
     cy.screenshot('diagnostics-consent-320')
-    cy.contains('button', 'Allow diagnostics').click()
     cy.contains('button', 'Turn off diagnostics').should('have.attr', 'aria-pressed', 'true')
     cy.wrap(null).should(() => expect(requests).to.be.greaterThan(0))
     cy.contains('button', 'Turn off diagnostics').click()
-    cy.contains('button', 'Allow diagnostics').should('have.attr', 'aria-pressed', 'false')
+    cy.contains('button', 'Enable diagnostics').should('have.attr', 'aria-pressed', 'false')
+    cy.then(() => {
+      requests = 0
+    })
     cy.reload()
     cy.get('.diagnostics summary').click()
-    cy.contains('button', 'Allow diagnostics').should('have.attr', 'aria-pressed', 'false')
+    cy.contains('button', 'Enable diagnostics').should('have.attr', 'aria-pressed', 'false')
+    cy.then(() => expect(requests).to.equal(0))
   })
 })

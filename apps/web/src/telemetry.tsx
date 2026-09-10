@@ -6,17 +6,15 @@ import './telemetry.css'
 const key = import.meta.env.VITE_POSTHOG_KEY
 const host = import.meta.env.VITE_POSTHOG_HOST
 const enabled = Boolean(key && host && import.meta.env.PROD)
-// v1 promised all text was hidden. Never reuse that consent for readable answers.
+// Preserve explicit opt-outs across versions; no saved preference now means enabled.
 const consentKey = 'ud.diagnostics.v2'
 const consentChanged = 'ud.diagnostics.changed'
 let sdk: Promise<typeof import('posthog-js')> | undefined
 
 function allowed() {
   try {
-    return (
-      localStorage.getItem(consentKey) === 'yes' &&
-      !['1', 'yes'].includes(navigator.doNotTrack ?? '')
-    )
+    const preference = localStorage.getItem(consentKey) ?? localStorage.getItem('ud.diagnostics')
+    return preference !== 'no' && !['1', 'yes'].includes(navigator.doNotTrack ?? '')
   } catch {
     return false
   }
@@ -224,7 +222,13 @@ export function DiagnosticsConsent() {
   const [consented, setConsented] = useState(allowed)
   useEffect(() => {
     const syncConsent = (event: Event) => {
-      if (event instanceof StorageEvent && event.key !== null && event.key !== consentKey) return
+      if (
+        event instanceof StorageEvent &&
+        event.key !== null &&
+        event.key !== consentKey &&
+        event.key !== 'ud.diagnostics'
+      )
+        return
       const next = allowed()
       setConsented(next)
       lastMarker = ''
@@ -260,13 +264,14 @@ export function DiagnosticsConsent() {
     <details className="diagnostics ph-no-capture">
       <summary>Privacy & diagnostics</summary>
       <p>
-        Share errors and a game-linked replay with PostHog to help us understand play. Room codes
-        and prompts are visible. Your submitted answers may appear in stage and player replays once
-        all players agree. Names and unfinished drafts stay hidden. Optional; turn it off anytime.
-        Previously recorded content is not deleted when you turn this off.
+        Diagnostics are on by default to help us understand play. PostHog receives errors and
+        game-linked replays. Room codes and prompts are visible. Submitted answers may appear in
+        stage and player replays while all players have diagnostics enabled. Names and unfinished
+        drafts stay hidden. You can turn diagnostics off anytime. Previously recorded content is not
+        deleted when you turn this off.
       </p>
       <button type="button" onClick={change} aria-pressed={consented}>
-        {consented ? 'Turn off diagnostics' : 'Allow diagnostics'}
+        {consented ? 'Turn off diagnostics' : 'Enable diagnostics'}
       </button>
     </details>
   )

@@ -37,16 +37,13 @@ it('does not initialize or display diagnostics without configuration', async () 
   expect(screen.queryByText('Privacy & diagnostics')).toBeNull()
 })
 
-it('requires fresh consent even after a v1 opt-in, and supports withdrawal', async () => {
+it('starts by default with no saved preference and supports opting out and back in', async () => {
   vi.stubEnv('PROD', true)
   vi.stubEnv('VITE_POSTHOG_KEY', 'public-test-key')
   vi.stubEnv('VITE_POSTHOG_HOST', 'https://us.i.posthog.com')
-  localStorage.setItem('ud.diagnostics', 'yes')
   const { initTelemetry, DiagnosticsConsent } = await import('../src/telemetry.tsx')
   initTelemetry()
   render(<DiagnosticsConsent />)
-  expect(sdk.init).not.toHaveBeenCalled()
-  fireEvent.click(screen.getByText('Allow diagnostics'))
   await waitFor(() => expect(sdk.init).toHaveBeenCalled())
   expect(sdk.init.mock.calls[0]![1]).toMatchObject({
     autocapture: false,
@@ -62,7 +59,7 @@ it('requires fresh consent even after a v1 opt-in, and supports withdrawal', asy
   await waitFor(() => expect(sdk.opt_out_capturing).toHaveBeenCalled())
   expect(sdk.stopSessionRecording).toHaveBeenCalled()
   sdk.__loaded = true
-  fireEvent.click(screen.getByText('Allow diagnostics'))
+  fireEvent.click(screen.getByText('Enable diagnostics'))
   await waitFor(() => expect(sdk.startSessionRecording).toHaveBeenCalled())
 })
 
@@ -80,6 +77,7 @@ it('only unmasks explicitly public display text, never drafts or names', async (
 })
 
 it('links consented replays to server IDs, deduplicates markers, and clears room context on exit', async () => {
+  localStorage.setItem('ud.diagnostics.v2', 'no')
   vi.stubEnv('PROD', true)
   vi.stubEnv('VITE_POSTHOG_KEY', 'public-test-key')
   vi.stubEnv('VITE_POSTHOG_HOST', 'https://us.i.posthog.com')
@@ -119,7 +117,7 @@ it('links consented replays to server IDs, deduplicates markers, and clears room
   render(<Bound />)
   expect(sdk.capture).not.toHaveBeenCalled()
   expect(send).toHaveBeenLastCalledWith({ t: 'diagnostics.set', submittedAnswers: false })
-  fireEvent.click(screen.getByText('Allow diagnostics'))
+  fireEvent.click(screen.getByText('Enable diagnostics'))
   await waitFor(() => expect(sdk.init).toHaveBeenCalled())
   sdk.__loaded = true
   sdk.init.mock.calls[0]![1].loaded(sdk)
@@ -160,6 +158,41 @@ it('links consented replays to server IDs, deduplicates markers, and clears room
   expect(JSON.stringify(sdk.capture.mock.calls)).not.toContain('Private Name')
   fireEvent.click(screen.getByText('Turn off diagnostics'))
   await waitFor(() => expect(sdk.stopSessionRecording).toHaveBeenCalled())
+})
+
+it.each(['ud.diagnostics', 'ud.diagnostics.v2'])(
+  'preserves an explicit opt-out in %s',
+  async (key) => {
+    vi.stubEnv('PROD', true)
+    vi.stubEnv('VITE_POSTHOG_KEY', 'public-test-key')
+    vi.stubEnv('VITE_POSTHOG_HOST', 'https://us.i.posthog.com')
+    localStorage.setItem(key, 'no')
+    const { initTelemetry, DiagnosticsConsent } = await import('../src/telemetry.tsx')
+    initTelemetry()
+    render(<DiagnosticsConsent />)
+    await Promise.resolve()
+    expect(sdk.init).not.toHaveBeenCalled()
+    expect(screen.getByText('Enable diagnostics')).toBeTruthy()
+  },
+)
+
+it('does not record in development or when preference storage is unavailable', async () => {
+  vi.stubEnv('PROD', false)
+  vi.stubEnv('VITE_POSTHOG_KEY', 'public-test-key')
+  vi.stubEnv('VITE_POSTHOG_HOST', 'https://us.i.posthog.com')
+  const dev = await import('../src/telemetry.tsx')
+  dev.initTelemetry()
+  await Promise.resolve()
+  expect(sdk.init).not.toHaveBeenCalled()
+  vi.resetModules()
+  vi.stubEnv('PROD', true)
+  vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+    throw new Error('blocked')
+  })
+  const prod = await import('../src/telemetry.tsx')
+  prod.initTelemetry()
+  await Promise.resolve()
+  expect(sdk.init).not.toHaveBeenCalled()
 })
 
 it('honors Do Not Track and withdrawal from another tab', async () => {

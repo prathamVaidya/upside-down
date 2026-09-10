@@ -75,14 +75,17 @@ Example query (replace the dataset name if necessary):
      or `https://eu.i.posthog.com`.
 3. Rebuild/deploy. Vite embeds these public values; changing runtime variables without
    rebuilding does not update the browser. Dockerfile build arguments are provided.
-4. Open **Privacy & diagnostics** at the bottom left and choose **Allow diagnostics**.
-   No PostHog SDK is loaded or events sent before consent. Withdrawal stops recording and
-   opts out of capture. Consent is saved per browser; a separate machine must opt in separately.
-   This version uses `ud.diagnostics.v2`: old opt-ins promising fully masked text do not count.
+4. Configured production builds start diagnostics automatically unless the browser has opted
+   out or sends a recognized Do Not Track signal. **Privacy & diagnostics → Turn off diagnostics**
+   stops recording/capture; **Enable diagnostics** turns it back on. Existing explicit opt-outs
+   in `ud.diagnostics.v2` or legacy `ud.diagnostics` are preserved (a newer choice takes precedence).
+   If preference storage is inaccessible, diagnostics stay off. Clearing storage restores the
+   default-on behavior. Review and publish [the privacy policy draft](privacy-policy.md) and
+   resolve applicable consent requirements before rolling out default-on recording.
 5. Play a test game and check Session Replay. On a staging/test build, trigger a deliberate
    JavaScript error and verify it appears in Error Tracking with a session link.
 
-DOM text is masked by default. Only marked room codes, prompts, and consent-approved
+DOM text is masked by default. Only marked room codes, prompts, and eligible
 submitted answers are readable. All inputs (including drafts and name fields) stay masked.
 Player names remain masked even after reveal. Accessible
 labels, titles, alt text, values and data attributes are redacted too. Hidden/file
@@ -93,12 +96,13 @@ may contain player input; exception types/stacks are retained. Do Not Track is r
 No real player name or reconnect token is passed to PostHog. Random room-local seat IDs
 are used as `player_id`; players are not merged into a shared PostHog identity.
 
-Submitted answers become readable on stage and phones only after **every player seat**
-opts in. Stage/audience consent cannot authorize other players' answers. The server broadcasts
-only a room-wide visibility flag, not which anonymous answer belongs to a consenting author.
+Submitted answers become readable on stage and phones only while **every player seat**
+reports diagnostics enabled. This is now a default-on preference, not affirmative consent.
+Stage/audience settings cannot override player opt-outs. The server broadcasts
+only a room-wide visibility flag, not which anonymous answer belongs to which player's preference.
 Withdrawal or disconnect masks future answer snapshots across the room; reconnect resends
-current consent. Offline/older clients default to no consent. Already uploaded snapshots
-are not retroactively redacted or deleted. Consent text explains this and the cross-screen use.
+current preference. Offline/older clients do not enable answer visibility. Already uploaded snapshots
+are not retroactively redacted or deleted. The diagnostics control explains this and cross-screen use.
 Answer nodes remount when visibility changes so the recorder receives freshly masked text.
 
 Avoid adding
@@ -116,8 +120,8 @@ match Axiom event fields. Room codes are reusable, so filter by the IDs for an e
 Browser events carry `room_id`, `room_code`, `game_id`, anonymous `player_id` (null for stage),
 `app_surface`, `round`, `phase`, and `matchup_number`. `game.replay_context` marks entry and
 phase/round/matchup changes; `server_time_ms` provides a server-clock reference. Repeated
-broadcasts do not create duplicate markers. Consent given mid-game captures the current context,
-not pre-consent history. Exit clears properties and emits `game.replay_left` with null IDs.
+broadcasts do not create duplicate markers. Enabling diagnostics mid-game captures the current context,
+not earlier disabled history. Exit clears properties and emits `game.replay_left` with null IDs.
 
 In PostHog Session Replay, filter for sessions with the `game.replay_context` event and its
 `game_id` property (or `room_code` to discover games). Separate stage/phone recordings using
@@ -125,15 +129,16 @@ In PostHog Session Replay, filter for sessions with the `game.replay_context` ev
 several rooms, so use event properties rather than treating the entire session as one game.
 You can save the selected recordings together for review. This is correlation, **not** a merged
 or synchronized multi-screen player; no custom viewer is included. Recordings only exist for
-consenting browsers that successfully upload and pass the project's recording rules/sampling.
+enabled browsers that successfully upload and pass the project's recording rules/sampling.
 
 ## Local verification
 
 Unit tests mock ingestion and the PostHog SDK; they send no data to external accounts.
 Production-only PostHog initialization means normal `bun dev` sessions aren't recorded.
-For a local browser smoke check, build with a test project's public variables and opt in.
+For a local browser smoke check, use fake/intercepted provider credentials; configured production
+builds now start recording automatically unless opted out. Do not accidentally use a live project.
 Do not put `AXIOM_TOKEN` in browser variables or commit real credentials.
-CI also builds with a fake public token and intercepts the provider to exercise consent.
+CI builds with a fake public token and intercepts the provider to test default-on and saved opt-out.
 For an intentional **live** check against your configured project, run the built app locally
 and use `UD_E2E_PORT=3487 bunx cypress run --spec e2e/specs/telemetry-live.cy.ts --env liveTelemetry=true`
 (adjust the port to your test backend). This sends synthetic error/replay data, is skipped by

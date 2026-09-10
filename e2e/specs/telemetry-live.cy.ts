@@ -18,6 +18,8 @@ describe('live PostHog smoke', { retries: 0 }, () => {
     })
     cy.visit('/play', {
       onBeforeLoad(win) {
+        // This intentional live check starts opted out, then explicitly enables uploads.
+        win.localStorage.setItem('ud.diagnostics.v2', 'no')
         // PostHog intentionally drops headless/WebDriver traffic. Simulate a normal
         // browser only in this explicitly opted-in synthetic ingestion check.
         Object.defineProperty(win.navigator, 'webdriver', { value: false })
@@ -30,7 +32,7 @@ describe('live PostHog smoke', { retries: 0 }, () => {
     })
     cy.get('.diagnostics summary').click()
     cy.then(() => expect(requests, 'no PostHog before consent').to.equal(0))
-    cy.contains('button', 'Allow diagnostics').click()
+    cy.contains('button', 'Enable diagnostics').click()
     cy.wrap(null, { timeout: 30000 }).should(() => {
       expect(
         scripts.some((path) => /exception/.test(path)),
