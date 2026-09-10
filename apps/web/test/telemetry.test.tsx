@@ -49,8 +49,8 @@ it('starts by default with no saved preference and supports opting out and back 
     autocapture: false,
     enable_recording_console_log: false,
     session_recording: {
-      maskAllInputs: true,
-      maskTextSelector: '*',
+      maskAllInputs: false,
+      maskTextSelector: '',
       recordHeaders: false,
       recordBody: false,
     },
@@ -63,17 +63,27 @@ it('starts by default with no saved preference and supports opting out and back 
   await waitFor(() => expect(sdk.startSessionRecording).toHaveBeenCalled())
 })
 
-it('only unmasks explicitly public display text, never drafts or names', async () => {
+it('records every text/input/attribute value regardless of public markers', async () => {
   const { privacyConfig } = await import('../src/telemetry.tsx')
   const mask = privacyConfig.session_recording!.maskTextFn!
   const visible = document.createElement('span')
   visible.dataset.replayPublic = 'true'
   expect(mask('submitted answer', visible)).toBe('submitted answer')
   visible.dataset.replayPublic = 'false'
-  expect(mask('submitted answer', visible)).not.toContain('submitted')
-  expect(mask('Player Name', document.createElement('span'))).not.toContain('Player')
-  expect(privacyConfig.session_recording?.maskAllInputs).toBe(true)
-  expect(privacyConfig.session_recording?.maskAttributeFn?.('value', 'draft')).toBe('[redacted]')
+  expect(mask('submitted answer', visible)).toBe('submitted answer')
+  expect(mask('Player Name', document.createElement('span'))).toBe('Player Name')
+  expect(mask('Question?', null)).toBe('Question?')
+  expect(privacyConfig.session_recording?.maskAllInputs).toBe(false)
+  expect(privacyConfig.session_recording?.maskAllElementAttributes).toBe(false)
+  expect(privacyConfig.session_recording?.maskInputOptions?.password).toBe(false)
+  expect(
+    privacyConfig.session_recording?.maskInputFn?.(
+      'unfinished draft',
+      document.createElement('textarea'),
+    ),
+  ).toBe('unfinished draft')
+  expect(privacyConfig.session_recording?.maskAttributeFn?.('value', 'draft')).toBe('draft')
+  expect(privacyConfig.session_recording?.blockSelector).toBe('')
 })
 
 it('links consented replays to server IDs, deduplicates markers, and clears room context on exit', async () => {
@@ -238,5 +248,5 @@ it('redacts exception messages before transmission', async () => {
   expect(result?.properties.$exception_list[0].type).toBe('Error')
   expect(
     privacyConfig.session_recording?.maskAttributeFn?.('aria-label', 'vote for secret answer'),
-  ).toBe('[redacted]')
+  ).toBe('vote for secret answer')
 })

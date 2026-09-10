@@ -14,8 +14,8 @@ room and use diagnostics to fix errors and understand how people play. **When co
 browser diagnostics are on by default**, including session replay and error tracking.
 You can turn browser diagnostics off through **Privacy & diagnostics → Turn off diagnostics**.
 
-Recordings can show room codes, game prompts and submitted answers. Names and unfinished
-drafts are masked in recordings. Please do not put sensitive or personal information about
+Recordings show all page text and inputs without masking, including room codes, game prompts,
+names, submitted answers and unfinished drafts. Please do not put sensitive or personal information about
 yourself or other people into answers: submitted text can still contain such information.
 
 ## Information used to run the game
@@ -39,18 +39,19 @@ We attach room and game IDs, room code, random room-local player ID, stage/phone
 phase and matchup markers. These let us find the separate stage and player replays for a game.
 They are pseudonymous identifiers, not a guarantee that gameplay cannot identify someone.
 
-Only specifically marked room codes, prompts and eligible submitted answers are readable.
-Other display text, player names, input values and unfinished drafts are masked. Accessible
-labels and selected HTML attributes are redacted. Reconnection tokens are not deliberately
-sent to PostHog. Console logs, network request bodies/headers, canvas recording and iframe
+Page text, input values, accessible labels and HTML attributes are recorded without masking.
+This includes drafts before submission, nicknames, questions, submitted answers and UI labels.
+Do not enter passwords or other secrets into the game: input masking is disabled.
+Reconnection tokens are not deliberately added to diagnostic events or UI elements.
+Console logs, network request bodies/headers, canvas recording and cross-origin iframe
 contents are excluded. Exception messages are redacted; error types and stacks remain.
 URL query strings and fragments are removed from captured URL fields.
 
-Submitted answers are readable in stage and player replays only while every player seat
-reports diagnostics enabled. This can happen automatically under the default-on setting;
-it is not evidence that each player actively clicked an agreement. A player's opt-out or
-disconnect makes subsequent answer snapshots masked throughout the room. Reconnecting
-clients resend their preference. A stage's setting cannot override a player's opt-out.
+Readable recordings start automatically under the default-on setting; this is not evidence
+that each player actively clicked an agreement. There is no room-wide answer-masking gate.
+Turning off your diagnostics stops recording your browser, but content already shared in
+the game may still be recorded on another player's or stage screen. It does not turn off
+other browsers' diagnostics or mask their screens. Avoid sharing sensitive information.
 
 ## Backend diagnostics: Axiom
 

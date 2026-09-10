@@ -32,7 +32,7 @@ export function safeUrl(value: string): string {
   }
 }
 
-/** Only deliberately marked display text is readable. Inputs/drafts stay masked. */
+/** Replay content is unmasked. Transport/error sanitization is separate below. */
 export const privacyConfig: Partial<PostHogConfig> = {
   autocapture: false,
   capture_pageview: false,
@@ -51,28 +51,19 @@ export const privacyConfig: Partial<PostHogConfig> = {
     capture_console_errors: false,
   },
   session_recording: {
-    maskAllInputs: true,
-    maskTextSelector: '*',
-    maskTextFn: (text, element) =>
-      element?.closest('[data-replay-public="true"]') ? text : '*'.repeat(text.length),
-    maskAttributeFn: (name, value) => {
-      // Finale vote buttons put answer text in accessible labels.
-      if (['aria-label', 'title', 'alt', 'value'].includes(name) || name.startsWith('data-'))
-        return '[redacted]'
-      if (name === 'href' || name === 'src') {
-        try {
-          return safeUrl(new URL(value, location.origin).toString())
-        } catch {
-          return ''
-        }
-      }
-      return value
-    },
+    // Explicit values override project defaults; callbacks also cover legacy mask classes.
+    maskAllInputs: false,
+    maskInputOptions: { password: false },
+    maskInputFn: (text) => text,
+    maskTextSelector: '',
+    maskTextFn: (text) => text,
+    maskAllElementAttributes: false,
+    maskAttributeFn: (_name, value) => value,
     recordCrossOriginIframes: false,
     recordHeaders: false,
     recordBody: false,
     captureCanvas: { recordCanvas: false },
-    blockSelector: 'input[type="hidden"], input[type="file"], iframe',
+    blockSelector: '',
     maskCapturedNetworkRequestFn: (request) => ({ ...request, name: safeUrl(request.name) }),
   },
   before_send: (event) => {
@@ -261,13 +252,14 @@ export function DiagnosticsConsent() {
     window.dispatchEvent(new Event(consentChanged))
   }
   return (
-    <details className="diagnostics ph-no-capture">
+    <details className="diagnostics">
       <summary>Privacy & diagnostics</summary>
       <p>
         Diagnostics are on by default to help us understand play. PostHog receives errors and
-        game-linked replays. Room codes and prompts are visible. Submitted answers may appear in
-        stage and player replays while all players have diagnostics enabled. Names and unfinished
-        drafts stay hidden. You can turn diagnostics off anytime. Previously recorded content is not
+        game-linked replays. All page text and inputs are recorded without masking, including names,
+        unfinished drafts, questions and answers. Your content may also appear in other players’ or
+        stage replays even if you turn off your own diagnostics. Avoid entering sensitive
+        information. You can turn diagnostics off anytime. Previously recorded content is not
         deleted when you turn this off.
       </p>
       <button type="button" onClick={change} aria-pressed={consented}>

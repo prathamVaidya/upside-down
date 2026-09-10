@@ -3,7 +3,7 @@
 Two independent integrations, disabled without configuration:
 
 - **Axiom:** structured backend game events. No Redis or database is required.
-- **PostHog:** browser errors (including React root errors) and selectively masked session replays on
+- **PostHog:** browser errors (including React root errors) and unmasked session replays on
   landing, phone, and stage. This is not a backend console-log exporter.
 
 ## Axiom setup
@@ -85,25 +85,23 @@ Example query (replace the dataset name if necessary):
 5. Play a test game and check Session Replay. On a staging/test build, trigger a deliberate
    JavaScript error and verify it appears in Error Tracking with a session link.
 
-DOM text is masked by default. Only marked room codes, prompts, and eligible
-submitted answers are readable. All inputs (including drafts and name fields) stay masked.
-Player names remain masked even after reveal. Accessible
-labels, titles, alt text, values and data attributes are redacted too. Hidden/file
-inputs and iframes are blocked. Console capture, request bodies/headers, canvas capture,
+DOM text, all input values (including names and unfinished drafts), and HTML attributes
+are unmasked. Explicit client-side settings disable text, input and attribute masking;
+identity callbacks preserve text even if legacy mask classes match. There is no input-type
+exception, so do not introduce password or sensitive-data forms without revisiting this policy.
+The diagnostics control is also visible in recordings. Console capture, request bodies/headers, canvas capture,
 autocapture, page views and performance capture are disabled. URLs have query strings and
 fragments removed, and `/r/CODE` is redacted. Exception messages are redacted because they
 may contain player input; exception types/stacks are retained. Do Not Track is respected.
-No real player name or reconnect token is passed to PostHog. Random room-local seat IDs
+Names can appear in replay DOM/input data, but are not used as analytics identities.
+Reconnect tokens are not added to PostHog event properties. Random room-local seat IDs
 are used as `player_id`; players are not merged into a shared PostHog identity.
 
-Submitted answers become readable on stage and phones only while **every player seat**
-reports diagnostics enabled. This is now a default-on preference, not affirmative consent.
-Stage/audience settings cannot override player opt-outs. The server broadcasts
-only a room-wide visibility flag, not which anonymous answer belongs to which player's preference.
-Withdrawal or disconnect masks future answer snapshots across the room; reconnect resends
-current preference. Offline/older clients do not enable answer visibility. Already uploaded snapshots
-are not retroactively redacted or deleted. The diagnostics control explains this and cross-screen use.
-Answer nodes remount when visibility changes so the recorder receives freshly masked text.
+Submitted answers and questions are readable without requiring every player to enable diagnostics.
+Legacy `data-replay-public` markers and `submittedAnswersVisible` metadata do not control the
+new recorder's masking. Disabling diagnostics stops recording that browser only; shared content
+may still be visible in other players' or stage replays. Previously uploaded masked recordings
+cannot be unmasked retroactively, and disabling diagnostics does not delete past recordings.
 
 Avoid adding
 user text to HTML attributes or error stack metadata. Any new capture fields need a privacy
