@@ -241,12 +241,7 @@ export function DiagnosticsConsent() {
       window.removeEventListener('storage', syncConsent)
     }
   }, [])
-  if (!enabled)
-    return (
-      <a className="diagnostics" href="/privacy" target="_blank" rel="noreferrer">
-        Privacy policy
-      </a>
-    )
+  if (!enabled) return null
   const change = () => {
     const next = !consented
     try {
