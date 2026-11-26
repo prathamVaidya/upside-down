@@ -16,3 +16,38 @@ prompts:
   - { id: us-013, level: 3, text: What you would do for one dollar less than your rent }
   - { id: us-014, level: 3, text: The worst thing to confess at Thanksgiving }
   - { id: us-015, level: 3, text: A reason to move states overnight }
+  - { id: us-016, level: 1, text: "A deep-fried state fair food that went too far" }
+  - { id: us-017, level: 1, text: "What the Costco sample lady knows" }
+  - { id: us-018, level: 1, text: "A terrible name for a new energy drink" }
+  - { id: us-019, level: 1, text: "The real reason the DMV line is not moving" }
+  - { id: us-020, level: 1, text: "A rejected Super Bowl halftime act" }
+  - { id: us-021, level: 1, text: "What the squirrels in Central Park are plotting" }
+  - { id: us-022, level: 1, text: "A terrible new rule for the NFL" }
+  - { id: us-023, level: 1, text: "The worst thing to say at a gender reveal party" }
+  - { id: us-024, level: 1, text: "What the Waffle House cook has seen" }
+  - { id: us-025, level: 1, text: "A new reason the barista misspelled your name" }
+  - { id: us-026, level: 1, text: "The most disappointing Fourth of July firework" }
+  - { id: us-027, level: 1, text: "A terrible name for a town in Florida" }
+  - { id: us-028, level: 1, text: "What the bald eagle is tired of" }
+  - { id: us-029, level: 1, text: "A terrible theme for a Las Vegas wedding chapel" }
+  - { id: us-030, level: 1, text: "The worst state to get a souvenir T-shirt from" }
+  - { id: us-031, level: 2, text: "A Florida Man headline that would surprise even Florida" }
+  - { id: us-032, level: 2, text: "A new hidden fee on your concert ticket" }
+  - { id: us-033, level: 2, text: "What your Venmo history says about you" }
+  - { id: us-034, level: 2, text: "The real reason your Amazon package is \"delayed\"" }
+  - { id: us-035, level: 2, text: "The worst thing to say in a job interview taken from your car" }
+  - { id: us-036, level: 2, text: "The real reason your coworker moved to Austin" }
+  - { id: us-037, level: 2, text: "The reason your HOA is suing you" }
+  - { id: us-038, level: 2, text: "What Grandma is really posting on Facebook" }
+  - { id: us-039, level: 2, text: "The worst MLM to get pitched at a baby shower" }
+  - { id: us-040, level: 2, text: "What your health insurance will not cover now" }
+  - { id: us-041, level: 2, text: "A new Trader Joe's snack that should be illegal" }
+  - { id: us-042, level: 2, text: "The worst thing to yell at a Little League game" }
+  - { id: us-043, level: 3, text: "What you would do to clear your student debt by Friday" }
+  - { id: us-044, level: 3, text: "The worst thing to say to the cop who pulled you over" }
+  - { id: us-045, level: 3, text: "What you would tell your HOA president with nothing to lose" }
+  - { id: us-046, level: 3, text: "What is really in your uncle's garage bunker" }
+  - { id: us-047, level: 3, text: "The real reason Dad never came back with the milk" }
+  - { id: us-048, level: 3, text: "The worst thing to post on Facebook on election night" }
+  - { id: us-049, level: 3, text: "What you would do for a 70-inch TV on Black Friday" }
+  - { id: us-050, level: 3, text: "A Yelp review that gets you banned from the whole town" }
