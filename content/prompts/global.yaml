@@ -42,3 +42,69 @@ prompts:
   - { id: g-038, level: 3, text: What would be on your permanent record }
   - { id: g-039, level: 3, text: The secret you would sell for the least money }
   - { id: g-040, level: 3, text: What you think about during the silence }
+  - { id: g-041, level: 1, text: "The worst thing to whisper to a baby" }
+  - { id: g-042, level: 1, text: "What the GPS says when it finally gives up on you" }
+  - { id: g-043, level: 1, text: "A rejected name for a new planet" }
+  - { id: g-044, level: 1, text: "The least helpful thing a lifeguard can shout" }
+  - { id: g-045, level: 1, text: "What cats are secretly plotting" }
+  - { id: g-046, level: 1, text: "A terrible thing to engrave on a wedding ring" }
+  - { id: g-047, level: 1, text: "The worst flavour of toothpaste" }
+  - { id: g-048, level: 1, text: "A new emoji nobody will ever use" }
+  - { id: g-049, level: 1, text: "What the pigeon is muttering about you" }
+  - { id: g-050, level: 1, text: "The worst thing to hear from the pilot mid-flight" }
+  - { id: g-051, level: 1, text: "A terrible app idea that got funded anyway" }
+  - { id: g-052, level: 1, text: "What your fridge does while you are asleep" }
+  - { id: g-053, level: 1, text: "The least reassuring song for a surgeon to hum" }
+  - { id: g-054, level: 1, text: "What the moon thinks of us" }
+  - { id: g-055, level: 1, text: "The worst possible name for a cruise ship" }
+  - { id: g-056, level: 1, text: "A terrible thing to yell while skydiving" }
+  - { id: g-057, level: 1, text: "A fortune cookie message that ruins dinner" }
+  - { id: g-058, level: 1, text: "What the robot vacuum has learned about your family" }
+  - { id: g-059, level: 1, text: "A bad excuse for not replying to a text for three weeks" }
+  - { id: g-060, level: 1, text: "The worst thing a hotel welcome card could say" }
+  - { id: g-061, level: 1, text: "A cursed item from a vending machine" }
+  - { id: g-062, level: 1, text: "What babies are actually crying about" }
+  - { id: g-063, level: 1, text: "A terrible motivational poster for an office" }
+  - { id: g-064, level: 1, text: "The least dramatic plot for a superhero movie" }
+  - { id: g-065, level: 1, text: "A bad name for a self-driving car" }
+  - { id: g-066, level: 1, text: "What the toaster would put on its CV" }
+  - { id: g-067, level: 1, text: "The worst sport to have a 24-hour channel for" }
+  - { id: g-068, level: 1, text: "A new rule for musical chairs" }
+  - { id: g-069, level: 1, text: "The worst thing to bring to show-and-tell" }
+  - { id: g-070, level: 1, text: "A terrible tagline for a mattress company" }
+  - { id: g-071, level: 1, text: "The worst thing a magician could pull out of a hat" }
+  - { id: g-072, level: 1, text: "What the smoke alarm is beeping about at 3 AM" }
+  - { id: g-073, level: 2, text: "The worst email to accidentally reply-all to" }
+  - { id: g-074, level: 2, text: "What your mum's \"we need to talk\" text is really about" }
+  - { id: g-075, level: 2, text: "The most suspicious thing to buy at 2 AM" }
+  - { id: g-076, level: 2, text: "The worst thing to say on a first date" }
+  - { id: g-077, level: 2, text: "What your ex is doing right now, probably" }
+  - { id: g-078, level: 2, text: "The real reason they muted you in the meeting" }
+  - { id: g-079, level: 2, text: "A LinkedIn post that should get you fired" }
+  - { id: g-080, level: 2, text: "The worst line in a best man's speech" }
+  - { id: g-081, level: 2, text: "An excuse for being found up a tree by the police" }
+  - { id: g-082, level: 2, text: "The worst text to get from your boss at midnight" }
+  - { id: g-083, level: 2, text: "A red flag that sounds like a green flag" }
+  - { id: g-084, level: 2, text: "What your coworker is really doing at the \"dentist\"" }
+  - { id: g-085, level: 2, text: "The worst thing to say when meeting your partner's parents" }
+  - { id: g-086, level: 2, text: "A one-star review for something that was free" }
+  - { id: g-087, level: 2, text: "What your gym membership is doing without you" }
+  - { id: g-088, level: 2, text: "The worst thing to overhear in a hospital waiting room" }
+  - { id: g-089, level: 2, text: "The most embarrassing thing your Spotify Wrapped could reveal" }
+  - { id: g-090, level: 2, text: "A conspiracy theory your uncle is about to start" }
+  - { id: g-091, level: 2, text: "The most unhinged thing to write in your boss's birthday card" }
+  - { id: g-092, level: 2, text: "What your dog tells other dogs about you" }
+  - { id: g-093, level: 2, text: "The worst thing to put in your out-of-office reply" }
+  - { id: g-094, level: 2, text: "A terrible thing to say when the waiter says \"enjoy your meal\"" }
+  - { id: g-095, level: 3, text: "The worst thing to say while being arrested" }
+  - { id: g-096, level: 3, text: "The text you send if your phone is about to explode" }
+  - { id: g-097, level: 3, text: "A terrible thing to find out about your parents at forty" }
+  - { id: g-098, level: 3, text: "What you would put in your will purely out of spite" }
+  - { id: g-099, level: 3, text: "The worst possible safe word" }
+  - { id: g-100, level: 3, text: "The real reason your last relationship ended" }
+  - { id: g-101, level: 3, text: "A lie you would tell to get out of jury duty" }
+  - { id: g-102, level: 3, text: "What your therapist says about you to their therapist" }
+  - { id: g-103, level: 3, text: "The worst thing to say while holding a newborn" }
+  - { id: g-104, level: 3, text: "What you would do if you woke up as your boss" }
+  - { id: g-105, level: 3, text: "The worst thing to hear just before the anaesthesia kicks in" }
+  - { id: g-106, level: 3, text: "The worst opening line at an intervention" }

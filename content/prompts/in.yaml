@@ -19,3 +19,42 @@ prompts:
   - { id: in-016, level: 3, text: The worst thing to announce at a family dinner }
   - { id: in-017, level: 3, text: A dowry demand from someone with no shame }
   - { id: in-018, level: 3, text: What the horoscope should have warned you about }
+  - { id: in-019, level: 1, text: "A rejected title for the next Bollywood sequel" }
+  - { id: in-020, level: 1, text: "What the cab driver means by \"two minutes away\"" }
+  - { id: in-021, level: 1, text: "What the railway announcer is too scared to say" }
+  - { id: in-022, level: 1, text: "A terrible thing to get delivered in ten minutes" }
+  - { id: in-023, level: 1, text: "What the street dog thinks of your morning walk" }
+  - { id: in-024, level: 1, text: "A terrible new rule for gully cricket" }
+  - { id: in-025, level: 1, text: "What the barber is planning during the head massage" }
+  - { id: in-026, level: 1, text: "A cursed new item at the pani puri stall" }
+  - { id: in-027, level: 1, text: "What the cow on the highway is thinking" }
+  - { id: in-028, level: 1, text: "A bad slogan for a coaching centre in Kota" }
+  - { id: in-029, level: 1, text: "The worst ringtone to have in a government office" }
+  - { id: in-030, level: 1, text: "A terrible startup pitched on Shark Tank India" }
+  - { id: in-031, level: 1, text: "The most Indian use for an empty ice cream box" }
+  - { id: in-032, level: 1, text: "The real reason the electrician will \"come tomorrow\"" }
+  - { id: in-033, level: 1, text: "A new feature for the pressure cooker whistle" }
+  - { id: in-034, level: 1, text: "A terrible name for a Bollywood item song" }
+  - { id: in-035, level: 1, text: "What the dabbawala knows about your office" }
+  - { id: in-036, level: 2, text: "What Sharma ji's son is up to now" }
+  - { id: in-037, level: 2, text: "The real reason your mum is calling for the fifth time" }
+  - { id: in-038, level: 2, text: "What your dad is saving all those plastic bags for" }
+  - { id: in-039, level: 2, text: "The worst thing to say to a Bangalore landlord" }
+  - { id: in-040, level: 2, text: "What Bangalore traffic taught you about life" }
+  - { id: in-041, level: 2, text: "The worst thing to say in a rishta meeting" }
+  - { id: in-042, level: 2, text: "The question your relatives will ask at the next wedding" }
+  - { id: in-043, level: 2, text: "A terrible reason for a Saturday call at an IT company" }
+  - { id: in-044, level: 2, text: "What the UPSC aspirant is actually doing in Delhi" }
+  - { id: in-045, level: 2, text: "The real reason your cousin moved to Canada" }
+  - { id: in-046, level: 2, text: "What a startup founder means by \"we are a family\"" }
+  - { id: in-047, level: 2, text: "The most passive aggressive Good Morning forward" }
+  - { id: in-048, level: 2, text: "What the astrologer told your parents about you" }
+  - { id: in-049, level: 2, text: "A terrible thing to say to the aunty asking about your salary" }
+  - { id: in-050, level: 3, text: "What your parents would find if they read your chats" }
+  - { id: in-051, level: 3, text: "The real reason you are still single, according to Nani" }
+  - { id: in-052, level: 3, text: "The worst thing to say to the TTE with no ticket" }
+  - { id: in-053, level: 3, text: "What you would do if Sharma ji's son finally failed" }
+  - { id: in-054, level: 3, text: "A terrible thing to put on your marriage biodata" }
+  - { id: in-055, level: 3, text: "What you would tell the traffic police if lying was illegal" }
+  - { id: in-056, level: 3, text: "The family secret nobody brings up at Diwali" }
+  - { id: in-057, level: 3, text: "What you would say in the office Holi group with no HR" }
