@@ -22,6 +22,7 @@ function routes(): Plugin {
         // The television.
         if (path === '/stage' || path === '/stage/') req.url = '/stage/index.html'
         else if (path === '/privacy' || path === '/privacy/') req.url = '/privacy/index.html'
+        else if (path === '/questions' || path === '/questions/') req.url = '/questions/index.html'
         // The QR-code deep link: the phone, with the code pre-filled.
         else if (path === '/play' || path === '/play/' || /^\/r\/[A-Za-z]{4}\/?$/.test(path))
           req.url = '/play/index.html'
@@ -45,13 +46,16 @@ export default defineConfig({
   server: {
     port: 5173,
     // The Bun server holds the rooms; Vite only serves the client.
-    proxy: { '/ws': { target: 'ws://localhost:3000', ws: true } },
+    proxy: {
+      '/ws': { target: 'ws://localhost:3000', ws: true },
+      '/api': { target: 'http://localhost:3000' },
+    },
   },
   build: {
     outDir: r('../server/public'),
     emptyOutDir: true,
     rollupOptions: {
-      // Four documents, one bundle graph. Each surface gets its own <head> — the
+      // Five documents, one bundle graph. Each surface gets its own <head> — the
       // phone needs `maximum-scale=1` so iOS does not zoom when the keyboard
       // opens, which would be wrong on a television — while React and the clay
       // system are emitted once and shared between them.
@@ -60,6 +64,7 @@ export default defineConfig({
         phone: r('./play/index.html'),
         stage: r('./stage/index.html'),
         privacy: r('./privacy/index.html'),
+        questions: r('./questions/index.html'),
       },
     },
   },

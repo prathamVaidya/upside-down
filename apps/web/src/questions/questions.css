@@ -1,0 +1,185 @@
+.questions-page {
+  max-width: 860px;
+  margin: auto;
+  padding: 28px clamp(16px, 4vw, 48px) 100px;
+  color: var(--ud-ink);
+  display: grid;
+  gap: 28px;
+}
+.questions-page a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+.questions-page a:focus-visible,
+.questions-page button:focus-visible,
+.questions-page input:focus-visible,
+.questions-page select:focus-visible {
+  outline: 3px solid var(--ud-sage);
+  outline-offset: 3px;
+}
+.questions-page__header,
+.questions-page__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.questions-page__footer {
+  border-top: 2px solid var(--ud-shelf);
+  padding-top: 20px;
+  font-size: 14px;
+}
+.questions-page h1 {
+  font: 600 clamp(34px, 5vw, 52px) / 1.1 var(--ud-stage-font);
+  margin: 0 0 12px;
+}
+.questions-page__intro p {
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.6;
+  color: var(--ud-ink-soft);
+}
+.questions-page__filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 0;
+  background: var(--ud-table);
+}
+.questions-page__filters input,
+.questions-page__filters select {
+  font: 15px var(--ud-quiet-font);
+  color: var(--ud-ink);
+  background: var(--ud-card);
+  border: 2px solid var(--ud-shelf);
+  border-radius: 14px;
+  padding: 10px 12px;
+  min-width: 0;
+  min-height: 44px;
+}
+.questions-page__count,
+.questions-page__status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ud-ink-soft);
+}
+.questions-page__status {
+  font-size: 16px;
+  padding: 24px 0;
+}
+.questions-page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.questions-page__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: var(--ud-card);
+  border-radius: var(--ud-radius);
+  box-shadow: var(--ud-lift-sm);
+  scroll-margin-top: 90px;
+}
+.questions-page__item:target {
+  outline: 3px solid var(--ud-butter);
+}
+.questions-page__body {
+  flex: 1;
+  min-width: 0;
+}
+.questions-page__text {
+  margin: 0 0 8px;
+  font: 500 19px / 1.35 var(--ud-stage-font);
+  overflow-wrap: anywhere;
+}
+.questions-page__meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 13px;
+  color: var(--ud-ink-soft);
+}
+.questions-page__id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.questions-page__level::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+.questions-page__level--1::before {
+  background: var(--ud-sage);
+}
+.questions-page__level--2::before {
+  background: var(--ud-butter);
+}
+.questions-page__level--3::before {
+  background: var(--ud-brick);
+}
+.questions-page__votes {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.questions-page__votes button {
+  font: 600 15px var(--ud-stage-font);
+  font-variant-numeric: tabular-nums;
+  color: var(--ud-ink);
+  background: var(--ud-table);
+  border: 2px solid var(--ud-shelf);
+  border-radius: 14px;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: transform var(--ud-beat) var(--ud-step-2);
+}
+.questions-page__votes button:active {
+  transform: translateY(2px);
+}
+.questions-page__votes button[aria-pressed="true"]:first-child {
+  background: var(--ud-sage);
+  border-color: var(--ud-sage);
+  color: #fff;
+}
+.questions-page__votes button[aria-pressed="true"]:last-child {
+  background: var(--ud-brick);
+  border-color: var(--ud-brick);
+  color: #fff;
+}
+@media (max-width: 640px) {
+  .questions-page__filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .questions-page__filters input {
+    grid-column: 1 / -1;
+  }
+  .questions-page__item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .questions-page__votes button {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .questions-page__votes button {
+    transition: none;
+  }
+}

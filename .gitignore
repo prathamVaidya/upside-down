@@ -8,3 +8,4 @@ apps/server/public/
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
+data/

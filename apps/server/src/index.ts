@@ -6,6 +6,7 @@ import { connectionContext } from './room.ts'
 import { Rooms } from './rooms.ts'
 import { type Connection, handleMessage } from './socket.ts'
 import { telemetry } from './telemetry.ts'
+import { VoteStore } from './votes.ts'
 
 const PUBLIC_DIR = fileURLToPath(new URL('../public/', import.meta.url))
 
@@ -17,6 +18,7 @@ const PUBLIC_DIR = fileURLToPath(new URL('../public/', import.meta.url))
 export function startServer(port = Number(process.env.PORT ?? 3000)) {
   const rooms = new Rooms()
   rooms.startSweeper()
+  const votes = new VoteStore()
 
   const server = Bun.serve<Connection>({
     port,
@@ -51,6 +53,9 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
           { headers: { 'cache-control': 'no-store' } },
         )
       }
+
+      const api = votes.handle(req, url)
+      if (api) return api
 
       return serveStatic(url.pathname)
     },
@@ -110,7 +115,7 @@ export function startServer(port = Number(process.env.PORT ?? 3000)) {
   })
 
   telemetry.emit({ event: 'server.started', room_count: rooms.size })
-  return { server, rooms }
+  return { server, rooms, votes }
 }
 
 /**
@@ -150,16 +155,27 @@ function serveStatic(pathname: string): Response {
       ? join(PUBLIC_DIR, 'play', 'index.html')
       : pathname === '/privacy' || pathname === '/privacy/'
         ? join(PUBLIC_DIR, 'privacy', 'index.html')
-        : join(PUBLIC_DIR, 'index.html')
+        : pathname === '/questions' || pathname === '/questions/'
+          ? join(PUBLIC_DIR, 'questions', 'index.html')
+          : join(PUBLIC_DIR, 'index.html')
+
+  // A build from before a page existed: say so rather than throwing ENOENT at the client.
+  if (!existsSync(document)) {
+    return new Response(
+      'this page is missing from the client build. run `bun run build` again, or use the Vite server.',
+      { status: 503, headers: { 'content-type': 'text/plain' } },
+    )
+  }
 
   return new Response(Bun.file(document), { headers: { 'content-type': 'text/html' } })
 }
 
 if (import.meta.main) {
-  const { server, rooms } = startServer()
+  const { server, rooms, votes } = startServer()
   console.log(`upside down · http://localhost:${server.port}`)
   console.log(`  phone  http://localhost:${server.port}/play`)
   console.log(`  stage  http://localhost:${server.port}/stage`)
+  console.log(`  questions  http://localhost:${server.port}/questions`)
   let stopping = false
   const shutdown = (signal: string) => {
     if (stopping) return
@@ -168,6 +184,7 @@ if (import.meta.main) {
     const exitTimer = setTimeout(() => process.exit(0), 4000)
     telemetry.emit({ event: 'server.stopping', reason: signal, room_count: rooms.size })
     rooms.close()
+    votes.flush()
     server.stop(true)
     void telemetry.close().finally(() => {
       clearTimeout(exitTimer)
